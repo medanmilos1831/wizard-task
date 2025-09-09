@@ -1,0 +1,130 @@
+.navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  padding: 40px 0 60px 0;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.navigation::after {
+  content: '';
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #e2e8f0 20%, #e2e8f0 80%, transparent 100%);
+  z-index: 0;
+}
+
+@media (max-width: 768px) {
+  .navigation {
+    gap: 40px;
+    padding: 30px 0 50px 0;
+  }
+  
+  .navigation::after {
+    width: 90%;
+  }
+}
+
+.navigationStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.navigationStep:hover {
+  transform: translateY(-2px);
+}
+
+.navigationItem {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  position: relative;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stepName {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  max-width: 100px;
+  line-height: 1.4;
+  letter-spacing: 0.025em;
+}
+
+.navigationItem.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border-color: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transform: scale(1.05);
+}
+
+.navigationItem.inactive {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #6b7280;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.navigationItem.completed {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.navigationItem.completed:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-color: #047857;
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.navigationItem:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navigationItem.inactive:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-color: #94a3b8;
+  color: #374151;
+}
+
+.navigationStep:hover .stepName {
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+.navigationStep:has(.navigationItem.active) .stepName {
+  color: #3b82f6;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(59, 130, 246, 0.1);
+}
+
+.navigationStep:has(.navigationItem.completed) .stepName {
+  color: #10b981;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(16, 185, 129, 0.1);
+}

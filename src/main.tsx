@@ -1,26 +1,16 @@
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux";
+import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { store } from "./store/store";
+import "antd/dist/antd.css";
+import "./index.less";
 import App from "./App.tsx";
-import "./index.css";
+import { AppProvider } from "./context/AppProvider.tsx";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </Provider>
-  </StrictMode>
+createRoot(document.getElementById("root")!).render(
+  <QueryClientProvider client={queryClient}>
+    <AppProvider>
+      <App />
+    </AppProvider>
+  </QueryClientProvider>
 );

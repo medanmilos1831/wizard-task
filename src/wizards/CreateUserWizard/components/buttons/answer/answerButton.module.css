@@ -1,0 +1,56 @@
+/* Answer Button Styles */
+.answerButton {
+  width: 100%;
+  padding: 20px 24px;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  font-size: 15px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  color: #374151;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.025em;
+}
+
+.answerButton:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.answerButton.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border-color: #1d4ed8;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+  transform: scale(1.02);
+}
+
+.answerButton.active:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  border-color: #1e40af;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.answerButton.inactive {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #6b7280;
+  border-color: #d1d5db;
+  opacity: 0.7;
+}
+
+.answerButton.inactive:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #374151;
+  border-color: #94a3b8;
+  opacity: 1;
+  transform: translateY(-1px);
+}
