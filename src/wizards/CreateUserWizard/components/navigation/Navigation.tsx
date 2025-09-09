@@ -1,4 +1,4 @@
-import styles from "./navigation.module.css";
+import styles from "./Navigation.module.css";
 import type { IStepInstance } from "src/Wizard/types";
 import { STEP_NAMES } from "../../constants";
 
