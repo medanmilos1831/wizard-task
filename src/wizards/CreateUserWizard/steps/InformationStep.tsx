@@ -15,9 +15,15 @@ const InformationStep = ({
   nextStep,
   getStates,
 }: InformationStepProps) => {
-  // Determine if description is required based on selected plan
+  // Determine if description is required based on selected plan or addPlan step
   const planData = getStates("plan");
-  const isDescriptionRequired = planData?.isExtraInfoRequired || false;
+  const addPlanData = getStates("addPlan");
+  
+  // Check if description is required from either plan or addPlan step
+  const isDescriptionRequired = 
+    planData?.isExtraInfoRequired || 
+    addPlanData?.isExtraInfoRequired || 
+    false;
 
   return (
     <Row>
@@ -58,38 +64,15 @@ const InformationStep = ({
             <Input placeholder="Last name" size="large" />
           </Form.Item>
 
-          <Form.Item
-            label="Age:"
-            name="age"
-            rules={[
-              { required: true, message: "Please enter age!" },
-              {
-                type: "number",
-                min: 1,
-                max: 120,
-                message: "Age must be between 1 and 120!",
-              },
-            ]}
-          >
+          <Form.Item label="Age:" name="age">
             <Input placeholder="Age" size="large" type="number" />
           </Form.Item>
 
-          <Form.Item
-            label="E-mail:"
-            name="email"
-            rules={[
-              { required: true, message: "Please enter email!" },
-              { type: "email", message: "Please enter a valid email!" },
-            ]}
-          >
+          <Form.Item label="E-mail:" name="email">
             <Input placeholder="E-mail" size="large" type="email" />
           </Form.Item>
 
-          <Form.Item
-            label="Start date:"
-            name="startDate"
-            rules={[{ required: true, message: "Please select start date!" }]}
-          >
+          <Form.Item label="Start date:" name="startDate">
             <DatePicker
               placeholder="dd-----yyyy"
               size="large"
@@ -98,25 +81,11 @@ const InformationStep = ({
             />
           </Form.Item>
 
-          <Form.Item
-            label="Location:"
-            name="location"
-            rules={[
-              { required: true, message: "Please enter location!" },
-              { min: 2, message: "Location must be at least 2 characters!" },
-            ]}
-          >
+          <Form.Item label="Location:" name="location">
             <Input placeholder="Location" size="large" />
           </Form.Item>
 
-          <Form.Item
-            label="Language:"
-            name="language"
-            rules={[
-              { required: true, message: "Please enter language!" },
-              { min: 2, message: "Language must be at least 2 characters!" },
-            ]}
-          >
+          <Form.Item label="Language:" name="language">
             <Input placeholder="Language" size="large" />
           </Form.Item>
 
