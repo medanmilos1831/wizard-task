@@ -1,4 +1,3 @@
-import React from "react";
 import { Layout, Typography, Button, Space } from "antd";
 import { useAppSelector, useAppDispatch } from "./hooks/redux";
 import { increment, decrement } from "./store/slices/counterSlice";
