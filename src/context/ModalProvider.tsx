@@ -54,7 +54,7 @@ export const ModalProvider = ({ children }: PropsWithChildren) => {
         {...activeModalConfigRef.current}
         open={isVisible}
         className={styles.modalContent}
-        maskClassName={styles.modalOverlay}
+        maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
         title={null}
         footer={null}
         width={480}

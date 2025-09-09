@@ -18,7 +18,7 @@ const { WizardHander } = createWizard(
         );
 
         if (!hasAllRequired) {
-          data.updateVisibleSteps((currentState: any) => {
+          data.updateVisibleSteps((_currentState: any) => {
             return {
               visibleStepsKeys: requiredSteps,
             };
@@ -34,7 +34,7 @@ const { WizardHander } = createWizard(
           );
 
           if (!hasAllRequired) {
-            data.updateVisibleSteps((currentState: any) => {
+            data.updateVisibleSteps((_currentState: any) => {
               return {
                 visibleStepsKeys: requiredSteps,
               };
@@ -47,7 +47,7 @@ const { WizardHander } = createWizard(
           );
 
           if (!hasAllRequired) {
-            data.updateVisibleSteps((currentState: any) => {
+            data.updateVisibleSteps((_currentState: any) => {
               return {
                 visibleStepsKeys: requiredSteps,
               };
@@ -64,7 +64,7 @@ const { WizardHander } = createWizard(
           );
 
           if (!hasAllRequired) {
-            data.updateVisibleSteps((currentState: any) => {
+            data.updateVisibleSteps((_currentState: any) => {
               return {
                 visibleStepsKeys: requiredSteps,
               };

@@ -1,5 +1,5 @@
 import styles from "./navigation.module.css";
-import type { IStepInstance } from "@wizard/types";
+import type { IStepInstance } from "src/Wizard/types";
 import { STEP_NAMES } from "../../constants";
 
 interface NavigationProps {
@@ -60,7 +60,7 @@ export const Navigation = ({
               )}
             </div>
             <div className={styles.stepName}>
-              {STEP_NAMES[step.name] || step.name}
+              {STEP_NAMES[step.name as keyof typeof STEP_NAMES] || step.name}
             </div>
           </div>
         );

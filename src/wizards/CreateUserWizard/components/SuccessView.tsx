@@ -1,7 +1,6 @@
-import React from "react";
 import { Button, Col, Row, Typography } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import type { WizardClient } from "@wizard";
+import type { WizardClient } from "src/Wizard/types";
 
 const { Title, Paragraph } = Typography;
 

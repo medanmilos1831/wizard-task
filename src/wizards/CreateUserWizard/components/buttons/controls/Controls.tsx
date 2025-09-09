@@ -27,7 +27,7 @@ const Controls = ({
   prevStep,
   nextStep,
   reset,
-  getCompletedSteps,
+  getCompletedSteps: _getCompletedSteps,
   stepsMap,
   isLoading = false,
 }: ControlsProps) => {
