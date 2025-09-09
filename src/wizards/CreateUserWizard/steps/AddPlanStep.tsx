@@ -1,8 +1,8 @@
 import { Checkbox, Col, Form, Input, Row } from "antd";
-import { debounce } from "lodash";
+
 import { type PropsWithChildren } from "react";
-import type { IStepInstance } from "@wizard/types";
-import { FormWapper } from "@components";
+import { IStepInstance } from "../../../Wizard/types";
+import { FormWapper } from "../components";
 
 interface AddPlanStepProps extends PropsWithChildren {
   activeStep: IStepInstance;

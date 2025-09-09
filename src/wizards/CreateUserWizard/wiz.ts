@@ -1,4 +1,4 @@
-import { createWizard } from "src/Wizard";
+import { createWizard } from "../../Wizard";
 import { WIZARD_STEPS, ALL_STEPS, INITIAL_VISIBLE_STEPS } from "./constants";
 
 const { WizardHander } = createWizard(

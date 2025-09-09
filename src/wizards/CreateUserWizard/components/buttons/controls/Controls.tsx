@@ -2,9 +2,9 @@ import { Button } from "antd";
 import styles from "./controlsButton.module.css";
 
 import { ResetWarning } from "../../modals";
-import { useModal } from "src/context/ModalProvider";
-import { IStepInstance } from "src/Wizard/types";
-import { WIZARD_STEPS } from "src/wizards/CreateUserWizard/constants";
+import { IStepInstance } from "../../../../../Wizard/types";
+import { useModal } from "../../../../../context/ModalProvider";
+import { WIZARD_STEPS } from "../../../constants";
 
 interface ControlsProps {
   isForm: boolean;
