@@ -1,10 +1,10 @@
-import { useOnStepChange, client } from "../../wiz";
+import { useWatchWizard, client } from "../../wiz";
 import styles from "./Navigation.module.css";
 
 export const Navigation = () => {
-  const stepname = useOnStepChange();
-  // const { visibleSteps: visibleStepsClient, goToStep: goToStepClient } =
-  //   useStepClient();
+  const stepname = useWatchWizard("ON_STEP_CHANGE", (wizardInstance: any) => {
+    return wizardInstance?.activeStep.name;
+  });
   return (
     <div className={styles.navigation}>
       {client.getVisibleSteps().map((step: any, index: number) => {

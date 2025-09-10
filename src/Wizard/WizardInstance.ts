@@ -6,7 +6,7 @@ import { EVENTS } from "./contants";
 /**
  * Main wizard instance that manages the entire wizard flow
  * Handles step navigation, state management, and event dispatching
- * 
+ *
  * This class is the core of the wizard system and manages:
  * - Step navigation (next, previous, go to specific step)
  * - Step state management and persistence
@@ -80,11 +80,11 @@ class WizardInstance {
     try {
       // Validate input
       if (!Array.isArray(newSteps)) {
-        throw new Error('updateVisibleSteps: newSteps must be an array');
+        throw new Error("updateVisibleSteps: newSteps must be an array");
       }
 
       if (newSteps.length === 0) {
-        throw new Error('updateVisibleSteps: newSteps cannot be empty');
+        throw new Error("updateVisibleSteps: newSteps cannot be empty");
       }
 
       // Create new visibleStepsMap based on the provided array
@@ -93,7 +93,7 @@ class WizardInstance {
         if (this.stepsMap[stepName]) {
           this.visibleStepsMap[stepName] = this.stepsMap[stepName];
         } else {
-          console.warn(`updateVisibleSteps: Step '${stepName}' not found in stepsMap`);
+          // Step not found in stepsMap
         }
       });
 
@@ -103,7 +103,7 @@ class WizardInstance {
           try {
             this.stepsMap[stepName].reset();
           } catch (error) {
-            console.error(`updateVisibleSteps: Failed to reset step '${stepName}':`, error);
+            // Failed to reset step
           }
         }
       });
@@ -118,13 +118,14 @@ class WizardInstance {
 
       // Recalculate isFirst and isLast
       this.isFirst = this.currentVisibleIndex === 0;
-      this.isLast = this.currentVisibleIndex === this.visibleStepsList.length - 1;
+      this.isLast =
+        this.currentVisibleIndex === this.visibleStepsList.length - 1;
     } catch (error) {
-      console.error('updateVisibleSteps: Error updating visible steps:', error);
+      // Error updating visible steps
       // Dispatch error event
       this.eventManager.dispatch({
-        type: 'WIZARD_ERROR',
-        payload: { error, method: 'updateVisibleSteps' }
+        type: "WIZARD_ERROR",
+        payload: { error, method: "updateVisibleSteps" },
       });
     }
   };
@@ -138,7 +139,7 @@ class WizardInstance {
       const currentIndex = this.visibleStepsList.indexOf(this.activeStep.name);
 
       if (currentIndex === -1) {
-        throw new Error('nextStep: Current step not found in visibleStepsList');
+        throw new Error("nextStep: Current step not found in visibleStepsList");
       }
 
       if (this.isLast) {
@@ -148,18 +149,18 @@ class WizardInstance {
           try {
             allStepStates[stepKey] = this.stepsMap[stepKey].state;
           } catch (error) {
-            console.error(`nextStep: Failed to get state for step '${stepKey}':`, error);
+            // Failed to get state for step
             allStepStates[stepKey] = null;
           }
         });
-        
+
         try {
           this.onFinish(allStepStates, this.success);
         } catch (error) {
-          console.error('nextStep: Error in onFinish callback:', error);
+          // Error in onFinish callback
           this.eventManager.dispatch({
-            type: 'WIZARD_ERROR',
-            payload: { error, method: 'nextStep', step: 'onFinish' }
+            type: "WIZARD_ERROR",
+            payload: { error, method: "nextStep", step: "onFinish" },
           });
         }
         return;
@@ -175,7 +176,9 @@ class WizardInstance {
           this.isLast = currentIndex + 1 === this.visibleStepsList.length - 1;
           this.isFirst = false;
         } else {
-          throw new Error(`nextStep: Next step '${nextStepName}' not found in stepsMap`);
+          throw new Error(
+            `nextStep: Next step '${nextStepName}' not found in stepsMap`
+          );
         }
       }
 
@@ -184,10 +187,10 @@ class WizardInstance {
         payload: this,
       });
     } catch (error) {
-      console.error('nextStep: Error moving to next step:', error);
+      // Error moving to next step
       this.eventManager.dispatch({
-        type: 'WIZARD_ERROR',
-        payload: { error, method: 'nextStep' }
+        type: "WIZARD_ERROR",
+        payload: { error, method: "nextStep" },
       });
     }
   };
@@ -222,8 +225,8 @@ class WizardInstance {
   goToStep = (stepName: string) => {
     try {
       // Validate input
-      if (!stepName || typeof stepName !== 'string') {
-        throw new Error('goToStep: stepName must be a non-empty string');
+      if (!stepName || typeof stepName !== "string") {
+        throw new Error("goToStep: stepName must be a non-empty string");
       }
 
       // Check if step exists in visible steps
@@ -234,7 +237,9 @@ class WizardInstance {
       // Check if step exists in steps map
       const stepInstance = this.stepsMap[stepName];
       if (!stepInstance) {
-        throw new Error(`goToStep: Step '${stepName}' does not exist in stepsMap`);
+        throw new Error(
+          `goToStep: Step '${stepName}' does not exist in stepsMap`
+        );
       }
 
       // Update active step
@@ -245,7 +250,8 @@ class WizardInstance {
 
       // Update isFirst and isLast flags
       this.isFirst = this.currentVisibleIndex === 0;
-      this.isLast = this.currentVisibleIndex === this.visibleStepsList.length - 1;
+      this.isLast =
+        this.currentVisibleIndex === this.visibleStepsList.length - 1;
 
       // Dispatch step change event
       this.eventManager.dispatch({
@@ -253,10 +259,10 @@ class WizardInstance {
         payload: this,
       });
     } catch (error) {
-      console.error('goToStep: Error navigating to step:', error);
+      // Error navigating to step
       this.eventManager.dispatch({
-        type: 'WIZARD_ERROR',
-        payload: { error, method: 'goToStep', stepName }
+        type: "WIZARD_ERROR",
+        payload: { error, method: "goToStep", stepName },
       });
     }
   };

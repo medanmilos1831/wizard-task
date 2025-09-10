@@ -1,23 +1,7 @@
-import type { IStepInstance } from "../../../../../Wizard/types";
-
 import { useModal } from "../../../../../context/ModalProvider";
+import { client, useWatchWizard } from "../../../wiz";
 import { ResetWarning } from "../../modals";
-import { client, useStepComplete } from "../../../wiz";
 import styles from "./controlsButton.module.css";
-
-interface ControlsProps {
-  isForm: boolean;
-  isFirst: boolean;
-  isLast: boolean;
-  activeStep: IStepInstance;
-  prevStep: () => void;
-  nextStep: () => void;
-  reset: () => void;
-  getCompletedSteps: () => IStepInstance[];
-  stepsMap: { [key: string]: IStepInstance };
-  isLoading?: boolean;
-  nextButtonLabel?: string;
-}
 
 const Controls = ({
   isForm = false,
@@ -38,18 +22,13 @@ const Controls = ({
   const isLast = client.getIsLast();
   const reset = client.reset;
   const nummberOfCompletedSteps = client.getNumberOfCompletedSteps();
-  const isStepComplete = useStepComplete();
-  const { open, close } = useModal();
-
-  // Check if any step has data to show restart button
-  const hasStepData = () => {
-    try {
-      const state = getStepState();
-      return state && Object.keys(state).length > 0;
-    } catch {
-      return false;
+  const isStepComplete = useWatchWizard(
+    "ON_STEP_COMPLETE",
+    (wizardInstance: any) => {
+      return wizardInstance?.activeStep.isComplete;
     }
-  };
+  );
+  const { open, close } = useModal();
 
   return (
     <div className={styles.controlsContainer}>
