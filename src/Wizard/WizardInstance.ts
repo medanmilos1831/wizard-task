@@ -1,215 +1,298 @@
-import { EVENTS } from "./contants";
 import { EventManager } from "./EventManager";
+import type { IWizardConfig, SetupWizardResult, IStepInstance } from "./types";
 import { setupWizardInstance } from "./utils";
-import type { IStepInstance, IWizardConfig, IWizardInstance } from "./types";
+import { EVENTS } from "./contants";
 
 /**
  * Main wizard instance that manages the entire wizard flow
  * Handles step navigation, state management, and event dispatching
+ * 
+ * This class is the core of the wizard system and manages:
+ * - Step navigation (next, previous, go to specific step)
+ * - Step state management and persistence
+ * - Event system for React integration
+ * - Visibility control of wizard steps
  */
-class WizardInstance implements IWizardInstance {
-  /** Currently active step in the wizard */
-  activeStep: IStepInstance;
-  /** Map of all step instances by their names */
-  stepsMap: { [key: string]: IStepInstance };
-  /** Array of step keys in order */
-  stepsKeys: string[];
-  /** Whether the current step is the last step */
-  isLast: boolean;
-  /** Whether the current step is the first step */
-  isFirst: boolean;
-  /** Whether the wizard has been completed successfully */
-  isSuccess: boolean = false;
-  /** Array of currently visible step instances */
-  visibleSteps: IStepInstance[] = [];
-  /** Array of currently visible step keys */
-  visibleStepsKeys: string[] = [];
-  /** Event manager for handling wizard events */
-  eventManager: EventManager = new EventManager();
-  /** Callback function called when step changes */
-  onStepChange: any;
-  /** Callback function called when wizard is finished */
-  onFinish: (success: () => void, stepData: any) => void;
-  /** Initial configuration used for resetting */
+class WizardInstance {
+  /** Event manager for handling wizard events and React integration */
+  eventManager = new EventManager();
+  /** Currently active step instance */
+  activeStep: IStepInstance<any>;
+  /** Map of all step instances by step name */
+  stepsMap: { [key: string]: IStepInstance<any> };
+  /** Map of currently visible step instances */
+  visibleStepsMap: { [key: string]: IStepInstance<any> };
+  /** Initial configuration for reset functionality */
   __INIT__: IWizardConfig;
-  /**
-   * Creates a new wizard instance
-   * @param config - Initial wizard configuration
-   * @param onStepChange - Callback function for step changes
-   * @param options - Additional options for the wizard
-   * @param options.onFinish - Callback function called when wizard is completed
-   */
-  constructor(
-    config: IWizardConfig,
-    { onStepChange }: any,
-    options: {
-      onFinish: (success: () => void, stepData: any) => void;
-    }
-  ) {
-    this.onFinish = options.onFinish;
-    this.onStepChange = onStepChange;
+  /** List of currently visible step names */
+  visibleStepsList: string[];
+  /** List of all step names */
+  allStepsList: string[];
+  /** Current index in the visible steps list */
+  currentVisibleIndex: number;
+  /** Whether the current step is the last visible step */
+  isLast: boolean;
+  /** Whether the current step is the first visible step */
+  isFirst: boolean;
+  /** Callback function called when wizard is completed */
+  onFinish: (
+    stepData: { [stepName: string]: any },
+    success: () => void
+  ) => void;
+  /** Whether the wizard has been successfully completed */
+  isSuccess: boolean = false;
+  constructor({
+    config,
+    onFinish,
+  }: {
+    config: IWizardConfig;
+    onFinish: (
+      stepData: { [stepName: string]: any },
+      success: () => void
+    ) => void;
+  }) {
     this.__INIT__ = structuredClone(config);
-    const setupResult = setupWizardInstance(config, this.eventManager);
-    this.stepsMap = setupResult.stepsMap;
-    this.activeStep = setupResult.activeStep;
-    this.stepsKeys = setupResult.stepsKeys;
-    this.visibleStepsKeys = setupResult.visibleStepsKeys;
-    this.visibleSteps = setupResult.visibleSteps;
-    this.isLast = setupResult.isLast;
-    this.isFirst = setupResult.isFirst;
-    this.isSuccess = false;
+    const result = setupWizardInstance({
+      config,
+      eventManager: this.eventManager,
+    });
+    this.activeStep = result.activeStep;
+    this.stepsMap = result.stepsMap;
+    this.visibleStepsMap = result.visibleStepsMap;
+    this.visibleStepsList = result.visibleStepsList;
+    this.allStepsList = result.allStepsList;
+    this.currentVisibleIndex = result.currentVisibleIndex;
+    this.isLast = result.isLast;
+    this.isFirst = result.isFirst;
+    this.onFinish = onFinish;
+    this.eventManager.subscribe(EVENTS.ON_STEP_NEXT, () => {
+      this.nextStep();
+    });
+    this.eventManager.subscribe(EVENTS.ON_STEP_PREV, () => {
+      this.prevStep();
+    });
   }
-
   /**
-   * Gets all completed steps (steps with data that are not the current step)
-   * @returns Array of completed step instances
+   * Updates the visible steps and resets non-visible step instances
+   * @param newSteps - Array of step names that should be visible
    */
-  getCompletedSteps = (): IStepInstance[] => {
-    return this.visibleSteps.filter(
-      (step) => !!step.getStepData() && step.name !== this.activeStep.name
-    );
-  };
+  updateVisibleSteps = (newSteps: string[]) => {
+    try {
+      // Validate input
+      if (!Array.isArray(newSteps)) {
+        throw new Error('updateVisibleSteps: newSteps must be an array');
+      }
 
-  /**
-   * Moves to the next step in the wizard
-   * Marks current step as complete and updates navigation state
-   */
-  nextStep = () => {
-    if (this.isLast) {
-      this.onFinish(
-        this.success,
-        (() => {
-          const stepData: any = {};
-          this.visibleSteps.forEach((step) => {
-            stepData[step.name] = step.getStepData();
-          });
-          return stepData;
-        })()
+      if (newSteps.length === 0) {
+        throw new Error('updateVisibleSteps: newSteps cannot be empty');
+      }
+
+      // Create new visibleStepsMap based on the provided array
+      this.visibleStepsMap = {};
+      newSteps.forEach((stepName: string) => {
+        if (this.stepsMap[stepName]) {
+          this.visibleStepsMap[stepName] = this.stepsMap[stepName];
+        } else {
+          console.warn(`updateVisibleSteps: Step '${stepName}' not found in stepsMap`);
+        }
+      });
+
+      // Reset step instances that are not in the new visibility map
+      Object.keys(this.stepsMap).forEach((stepName: string) => {
+        if (!newSteps.includes(stepName)) {
+          try {
+            this.stepsMap[stepName].reset();
+          } catch (error) {
+            console.error(`updateVisibleSteps: Failed to reset step '${stepName}':`, error);
+          }
+        }
+      });
+
+      // Update visibleStepsList with the new steps array
+      this.visibleStepsList = newSteps;
+
+      // Recalculate currentVisibleIndex
+      this.currentVisibleIndex = this.visibleStepsList.indexOf(
+        this.activeStep.name
       );
-      return;
-    }
 
-    // Mark current step as complete when moving to next
-    this.activeStep.completeStep();
-
-    this.onStepChange({
-      activeStep: this.activeStep,
-      updateVisibleSteps: this.updateVisibleSteps,
-      visibleStepsKeys: this.visibleStepsKeys,
-      instance: this,
-    });
-
-    const currentVisibleIndex = this.visibleSteps.indexOf(this.activeStep);
-    const nextVisibleStep = this.visibleSteps[currentVisibleIndex + 1];
-    this.activeStep = nextVisibleStep;
-    const currentStepIndex = this.stepsKeys.indexOf(this.activeStep.name);
-    this.isLast = currentStepIndex === this.stepsKeys.length - 1;
-    this.isFirst = currentStepIndex === 0;
-
-    this.eventManager.dispatch({
-      type: "STEP_CHANGED",
-      payload: this,
-    });
-  };
-  /**
-   * Updates the visible steps based on the provided callback
-   * @param callback - Function that returns new visible steps configuration
-   */
-  updateVisibleSteps = (
-    callback: (currentState: {
-      visibleStepsKeys: string[];
-      stepsKeys: string[];
-    }) => { visibleStepsKeys: string[] }
-  ) => {
-    const currentState = {
-      visibleStepsKeys: this.visibleSteps.map((step) => step.name),
-      stepsKeys: this.stepsKeys,
-    };
-
-    const result = callback(currentState);
-
-    // Update isVisible flags in stepsMap
-    Object.keys(this.stepsMap).forEach((stepKey) => {
-      this.stepsMap[stepKey].setIsVisible(
-        result.visibleStepsKeys.includes(stepKey)
-      );
-    });
-
-    // Recalculate visibleSteps array
-    this.visibleSteps = Object.values(this.stepsMap).filter(
-      (step) => step.isVisible
-    );
-  };
-  /**
-   * Moves to the previous step in the wizard
-   * Updates navigation state without marking steps as complete
-   */
-  prevStep = () => {
-    const currentVisibleIndex = this.visibleSteps.indexOf(this.activeStep);
-    const prevVisibleStep = this.visibleSteps[currentVisibleIndex - 1];
-    this.activeStep = prevVisibleStep;
-    const currentStepIndex = this.stepsKeys.indexOf(this.activeStep.name);
-    this.isLast = currentStepIndex === this.stepsKeys.length - 1;
-    this.isFirst = currentStepIndex === 0;
-
-    this.eventManager.dispatch({
-      type: "STEP_CHANGED",
-      payload: this,
-    });
-  };
-  /**
-   * Gets the data for a specific step by name
-   * @param name - Name of the step to get data for
-   * @returns The step data or undefined if step doesn't exist
-   */
-  getStates = (name: string) => {
-    return this.stepsMap[name].getStepData();
-  };
-  /**
-   * Navigates to a specific step by key
-   * Only allows navigation to steps that have data
-   * @param stepKey - Key of the step to navigate to
-   */
-  goToStep = (stepKey: string) => {
-    const targetStep = this.stepsMap[stepKey];
-
-    if (targetStep.getStepData()) {
-      this.activeStep = targetStep;
-      const currentStepIndex = this.stepsKeys.indexOf(this.activeStep.name);
-      this.isLast = currentStepIndex === this.stepsKeys.length - 1;
-      this.isFirst = currentStepIndex === 0;
-
+      // Recalculate isFirst and isLast
+      this.isFirst = this.currentVisibleIndex === 0;
+      this.isLast = this.currentVisibleIndex === this.visibleStepsList.length - 1;
+    } catch (error) {
+      console.error('updateVisibleSteps: Error updating visible steps:', error);
+      // Dispatch error event
       this.eventManager.dispatch({
-        type: "STEP_CHANGED",
-        payload: this,
+        type: 'WIZARD_ERROR',
+        payload: { error, method: 'updateVisibleSteps' }
       });
     }
   };
+
+  /**
+   * Moves to the next step in the wizard flow
+   * If on the last step, triggers the onFinish callback
+   */
+  nextStep = () => {
+    try {
+      const currentIndex = this.visibleStepsList.indexOf(this.activeStep.name);
+
+      if (currentIndex === -1) {
+        throw new Error('nextStep: Current step not found in visibleStepsList');
+      }
+
+      if (this.isLast) {
+        // Collect all step states by key
+        const allStepStates: { [key: string]: any } = {};
+        Object.keys(this.stepsMap).forEach((stepKey) => {
+          try {
+            allStepStates[stepKey] = this.stepsMap[stepKey].state;
+          } catch (error) {
+            console.error(`nextStep: Failed to get state for step '${stepKey}':`, error);
+            allStepStates[stepKey] = null;
+          }
+        });
+        
+        try {
+          this.onFinish(allStepStates, this.success);
+        } catch (error) {
+          console.error('nextStep: Error in onFinish callback:', error);
+          this.eventManager.dispatch({
+            type: 'WIZARD_ERROR',
+            payload: { error, method: 'nextStep', step: 'onFinish' }
+          });
+        }
+        return;
+      }
+
+      if (currentIndex < this.visibleStepsList.length - 1) {
+        const nextStepName = this.visibleStepsList[currentIndex + 1];
+        const nextStepInstance = this.stepsMap[nextStepName];
+
+        if (nextStepInstance) {
+          this.activeStep = nextStepInstance;
+          this.currentVisibleIndex = currentIndex + 1;
+          this.isLast = currentIndex + 1 === this.visibleStepsList.length - 1;
+          this.isFirst = false;
+        } else {
+          throw new Error(`nextStep: Next step '${nextStepName}' not found in stepsMap`);
+        }
+      }
+
+      this.eventManager.dispatch({
+        type: EVENTS.ON_STEP_CHANGE,
+        payload: this,
+      });
+    } catch (error) {
+      console.error('nextStep: Error moving to next step:', error);
+      this.eventManager.dispatch({
+        type: 'WIZARD_ERROR',
+        payload: { error, method: 'nextStep' }
+      });
+    }
+  };
+
+  /**
+   * Moves to the previous step in the wizard flow
+   * Resets current step state if it hasn't been initially completed
+   */
+  prevStep = () => {
+    const currentIndex = this.visibleStepsList.indexOf(this.activeStep.name);
+    if (currentIndex > 0) {
+      const prevStepName = this.visibleStepsList[currentIndex - 1];
+      const prevStepInstance = this.stepsMap[prevStepName];
+
+      if (prevStepInstance) {
+        this.activeStep = prevStepInstance;
+        this.currentVisibleIndex = currentIndex - 1;
+        this.isFirst = currentIndex - 1 === 0;
+        this.isLast = false;
+      }
+    }
+    this.eventManager.dispatch({
+      type: EVENTS.ON_STEP_CHANGE,
+      payload: this,
+    });
+  };
+
+  /**
+   * Navigates to a specific step by name
+   * @param stepName - Name of the step to navigate to
+   */
+  goToStep = (stepName: string) => {
+    try {
+      // Validate input
+      if (!stepName || typeof stepName !== 'string') {
+        throw new Error('goToStep: stepName must be a non-empty string');
+      }
+
+      // Check if step exists in visible steps
+      if (!this.visibleStepsList.includes(stepName)) {
+        throw new Error(`goToStep: Step '${stepName}' is not visible`);
+      }
+
+      // Check if step exists in steps map
+      const stepInstance = this.stepsMap[stepName];
+      if (!stepInstance) {
+        throw new Error(`goToStep: Step '${stepName}' does not exist in stepsMap`);
+      }
+
+      // Update active step
+      this.activeStep = stepInstance;
+
+      // Update current visible index
+      this.currentVisibleIndex = this.visibleStepsList.indexOf(stepName);
+
+      // Update isFirst and isLast flags
+      this.isFirst = this.currentVisibleIndex === 0;
+      this.isLast = this.currentVisibleIndex === this.visibleStepsList.length - 1;
+
+      // Dispatch step change event
+      this.eventManager.dispatch({
+        type: EVENTS.ON_STEP_CHANGE,
+        payload: this,
+      });
+    } catch (error) {
+      console.error('goToStep: Error navigating to step:', error);
+      this.eventManager.dispatch({
+        type: 'WIZARD_ERROR',
+        payload: { error, method: 'goToStep', stepName }
+      });
+    }
+  };
+
   /**
    * Marks the wizard as successfully completed
-   * Dispatches success event and updates internal state
+   * Triggers the success event
    */
   success = () => {
     this.isSuccess = true;
     this.eventManager.dispatch({
       type: EVENTS.ON_SUCCESS,
-      payload: this,
     });
   };
+
   /**
    * Resets the wizard to its initial state
-   * Reinitializes all steps and clears all data
+   * Recreates all step instances and resets all state
    */
   reset = () => {
     this.__INIT__ = structuredClone(this.__INIT__);
-    const setupResult = setupWizardInstance(this.__INIT__, this.eventManager);
-    this.stepsMap = setupResult.stepsMap;
-    this.activeStep = setupResult.activeStep;
-    this.stepsKeys = setupResult.stepsKeys;
-    this.visibleSteps = setupResult.visibleSteps;
-    this.isLast = setupResult.isLast;
-    this.isFirst = setupResult.isFirst;
+    const result = setupWizardInstance({
+      config: this.__INIT__,
+      eventManager: this.eventManager,
+    });
+
+    this.activeStep = result.activeStep;
+    this.stepsMap = result.stepsMap;
+    this.visibleStepsMap = result.visibleStepsMap;
+    this.visibleStepsList = result.visibleStepsList;
+    this.allStepsList = result.allStepsList;
+    this.currentVisibleIndex = result.currentVisibleIndex;
+    this.isLast = result.isLast;
+    this.isFirst = result.isFirst;
     this.isSuccess = false;
+
     this.eventManager.dispatch({
       type: EVENTS.ON_RESET,
       payload: this,

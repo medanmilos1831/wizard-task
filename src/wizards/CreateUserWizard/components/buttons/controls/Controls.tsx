@@ -1,10 +1,9 @@
-import { Button } from "antd";
-import styles from "./controlsButton.module.css";
+import type { IStepInstance } from "../../../../../Wizard/types";
 
-import { ResetWarning } from "../../modals";
-import { IStepInstance } from "../../../../../Wizard/types";
 import { useModal } from "../../../../../context/ModalProvider";
-import { WIZARD_STEPS } from "../../../constants";
+import { ResetWarning } from "../../modals";
+import { client, useStepComplete } from "../../../wiz";
+import styles from "./controlsButton.module.css";
 
 interface ControlsProps {
   isForm: boolean;
@@ -17,59 +16,87 @@ interface ControlsProps {
   getCompletedSteps: () => IStepInstance[];
   stepsMap: { [key: string]: IStepInstance };
   isLoading?: boolean;
+  nextButtonLabel?: string;
 }
 
 const Controls = ({
-  isForm,
-  isFirst,
-  isLast,
-  activeStep,
-  prevStep,
-  nextStep,
-  reset,
-  getCompletedSteps: _getCompletedSteps,
-  stepsMap,
-  isLoading = false,
-}: ControlsProps) => {
+  isForm = false,
+  nextButtonLabel,
+  isLoading,
+}: {
+  isForm?: boolean;
+  nextButtonLabel?: string;
+  isLoading?: boolean;
+}) => {
+  // Use client methods directly
+  const onNextStep = client.onNextStep;
+  const onPrevStep = client.onPrevStep;
+  const getStepState = client.getStepState;
+  const activeStepName = client.getActiveStepName();
+  const updateVisibleSteps = client.updateVisibleSteps;
+  const isFirst = client.getIsFirst();
+  const isLast = client.getIsLast();
+  const reset = client.reset;
+  const nummberOfCompletedSteps = client.getNumberOfCompletedSteps();
+  const isStepComplete = useStepComplete();
   const { open, close } = useModal();
+
+  // Check if any step has data to show restart button
+  const hasStepData = () => {
+    try {
+      const state = getStepState();
+      return state && Object.keys(state).length > 0;
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <div className={styles.controlsContainer}>
-      {!isFirst && (
-        <Button
-          className={`${styles.controlButton} ${styles.secondary}`}
-          htmlType="button"
-          onClick={prevStep}
-          disabled={isLoading}
-        >
-          Previous
-        </Button>
-      )}
-      <Button
+      <button
+        className={`${styles.controlButton} ${styles.secondary}`}
+        type="button"
+        disabled={isFirst}
+        onClick={() => {
+          onPrevStep();
+        }}
+      >
+        Previous
+      </button>
+      <button
         className={`${styles.controlButton} ${styles.primary}`}
-        htmlType={isForm ? "submit" : "button"}
-        loading={isLoading}
-        disabled={
-          isLoading ||
-          (!activeStep.getStepData() &&
-            ![WIZARD_STEPS.ADD_PLAN, WIZARD_STEPS.INFORMATION].includes(
-              activeStep.name as any
-            ))
-        }
+        type={isForm ? "submit" : "button"}
+        disabled={!isStepComplete || isLoading}
         onClick={
           isForm
             ? undefined
             : () => {
-                nextStep();
+                if (activeStepName === "plan") {
+                  const state = getStepState();
+                  if (state.id === "all") {
+                    updateVisibleSteps([
+                      "accountType",
+                      "plan",
+                      "addPlan",
+                      "information",
+                    ]);
+                    onNextStep();
+                  } else {
+                    updateVisibleSteps(["accountType", "plan", "information"]);
+                    onNextStep();
+                  }
+                } else {
+                  onNextStep();
+                }
               }
         }
       >
-        {isLast ? "Submit" : "Next"}
-      </Button>
-      {Object.values(stepsMap).some((step) => !!step.getStepData()) && (
-        <Button
+        {nextButtonLabel || (isLast ? "Submit" : "Next")}
+      </button>
+      {nummberOfCompletedSteps > 0 && (
+        <button
           className={`${styles.controlButton} ${styles.danger}`}
-          htmlType="button"
-          disabled={isLoading}
+          type="button"
           onClick={() => {
             open(
               () => (
@@ -88,7 +115,7 @@ const Controls = ({
           }}
         >
           Restart
-        </Button>
+        </button>
       )}
     </div>
   );

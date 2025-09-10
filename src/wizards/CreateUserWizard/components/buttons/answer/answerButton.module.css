@@ -54,3 +54,20 @@
   opacity: 1;
   transform: translateY(-1px);
 }
+
+/* Answer List Styles */
+.answerList {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  margin-bottom: 32px;
+  padding: 24px 0;
+}
+
+.answerItem {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+}

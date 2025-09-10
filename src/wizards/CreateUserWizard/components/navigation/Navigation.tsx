@@ -1,51 +1,38 @@
+import { useOnStepChange, client } from "../../wiz";
 import styles from "./Navigation.module.css";
-import type { IStepInstance } from "src/Wizard/types";
-import { STEP_NAMES } from "../../constants";
 
-interface NavigationProps {
-  visibleSteps: IStepInstance[];
-  activeStep: IStepInstance;
-  stepsMap: { [key: string]: IStepInstance };
-  goToStep: (stepName: string) => void;
-}
-
-export const Navigation = ({
-  visibleSteps,
-  activeStep,
-  stepsMap,
-  goToStep,
-}: NavigationProps) => {
+export const Navigation = () => {
+  const stepname = useOnStepChange();
+  // const { visibleSteps: visibleStepsClient, goToStep: goToStepClient } =
+  //   useStepClient();
   return (
     <div className={styles.navigation}>
-      {visibleSteps.map((step, index: number) => {
-        const isActive = step === activeStep;
-        const isCompleted = !!stepsMap[step.name]?.getStepData();
+      {client.getVisibleSteps().map((step: any, index: number) => {
+        const isActive = step.stepName === stepname;
+        const isCompleted = step.isComplete;
 
-        let className = styles.navigationItem;
+        let itemClasses = styles.navigationItem;
         if (isActive) {
-          className += ` ${styles.active}`;
+          itemClasses += ` ${styles.active}`;
         } else if (isCompleted) {
-          className += ` ${styles.completed}`;
+          itemClasses += ` ${styles.completed}`;
         } else {
-          className += ` ${styles.inactive}`;
+          itemClasses += ` ${styles.inactive}`;
         }
 
         return (
-          <div
-            key={step.name}
-            className={styles.navigationStep}
-            onClick={() => {
-              if (isCompleted && !isActive) {
-                goToStep(step.name);
-              }
-            }}
-            style={{ cursor: isCompleted && !isActive ? "pointer" : "default" }}
-          >
-            <div className={className}>
+          <div key={step.stepName} className={styles.navigationStep}>
+            <button
+              className={itemClasses}
+              onClick={() => {
+                client.goToStep(step.stepName);
+              }}
+              disabled={!isCompleted && !isActive}
+            >
               {isCompleted ? (
                 <svg
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -58,9 +45,13 @@ export const Navigation = ({
               ) : (
                 index + 1
               )}
-            </div>
+            </button>
             <div className={styles.stepName}>
-              {STEP_NAMES[step.name as keyof typeof STEP_NAMES] || step.name}
+              {(step.stepName === "accountType" && "Account Type") ||
+                (step.stepName === "plan" && "Plan") ||
+                (step.stepName === "addPlan" && "Add Plan") ||
+                (step.stepName === "information" && "Information") ||
+                step.stepName}
             </div>
           </div>
         );

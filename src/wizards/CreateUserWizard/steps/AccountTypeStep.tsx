@@ -1,27 +1,74 @@
+import { AnswerList } from "../components";
 import { Row } from "antd";
 import type { PropsWithChildren } from "react";
 import { data } from "../../../mock";
+import { client, useStepState } from "../wiz";
+import { useModal } from "../../../context/ModalProvider";
+import { WarningModal } from "../components/modals";
+import type { IStepInstance } from "../../../Wizard/types";
 
-import { AnswerList } from "../components";
-import { IStepInstance } from "src/Wizard/types";
+/**
+ * AccountTypeStep component for selecting account type
+ * Handles account type selection with validation and warning modal
+ * 
+ * @param props - Component props
+ * @param props.children - Child components to render
+ * @returns JSX element representing the account type selection step
+ */
+const AccountTypeStep = ({ children }: PropsWithChildren) => {
+  const { state, setState } = useStepState((state: any) => state);
+  // Use client methods directly
+  const setStepComplete = client.setStepComplete;
+  const isComplete = client.getIsComplete();
+  const getPrevStepState = client.getPrevStepState;
+  const getInitialComplete = client.getInitialComplete;
+  const updateVisibleSteps = client.updateVisibleSteps;
+  const onNextStep = client.onNextStep;
+  const onPrevStep = client.onPrevStep;
+  const getAheadSteps = client.getAheadSteps;
+  const { open, close } = useModal();
 
-interface AccountTypeStepProps extends PropsWithChildren {
-  activeStep: IStepInstance;
-}
-
-const AccountTypeStep = ({ children, activeStep }: AccountTypeStepProps) => {
   return (
     <>
       <Row gutter={24}>
         <AnswerList
           items={data.accountType}
-          id={activeStep.getStepData()?.id}
-          isLocked={activeStep.isComplete}
+          id={state?.id}
           onAnswerClick={(item) => {
-            if (item.id === activeStep.getStepData()?.id) {
+            // Check if user is trying to select the same option they already selected
+            if (item.id != state?.id && getInitialComplete()) {
+              // Show warning modal for same selection
+              open(
+                () => (
+                  <WarningModal
+                    onConfirm={() => {
+                      // Get all ahead steps and reset them
+                      const aheadSteps = getAheadSteps();
+                      aheadSteps.forEach(
+                        ({ stepInstance }: { stepInstance: IStepInstance }) => {
+                          stepInstance.reset();
+                        }
+                      );
+
+                      // Update visible steps to only show accountType and plan
+                      updateVisibleSteps(["accountType", "plan"]);
+                      // Move to next step
+                      onNextStep();
+                      // Close the modal
+                      close();
+                    }}
+                    onCancel={() => close()}
+                  />
+                ),
+                {
+                  centered: true,
+                }
+              );
               return;
             }
-            activeStep.setState((prev) => {
+            // Mark step as complete and update state with selected item
+            setStepComplete();
+            setState((prev: any) => {
               return {
                 ...prev,
                 ...item,

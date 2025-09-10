@@ -1,46 +1,52 @@
-import { StepInstance } from "./StepInstance";
 import { EventManager } from "./EventManager";
-import type { IWizardConfig, IStepInstance } from "./types";
+import { StepInstance } from "./StepInstance";
+import type { IWizardConfig, SetupWizardResult } from "./types";
 
-/**
- * Sets up a new wizard instance with all necessary configurations
- * Creates step instances, calculates navigation properties, and initializes state
- * @param config - Initial wizard configuration
- * @param eventManager - Event manager for handling wizard events
- * @returns Complete wizard setup with all calculated properties
- */
-export function setupWizardInstance(
-  config: IWizardConfig,
-  eventManager: EventManager
-) {
-  const stepsMap: { [key: string]: IStepInstance } = {};
+export function setupWizardInstance({
+  config,
+  eventManager,
+}: {
+  config: IWizardConfig;
+  eventManager: EventManager;
+}): SetupWizardResult {
+  const stepsMap: { [key: string]: StepInstance<any> } = {};
+  if (config.stepsKeys && Array.isArray(config.stepsKeys)) {
+    config.stepsKeys.forEach((stepKey: string) => {
+      const stepInstance = new StepInstance(stepKey, {
+        eventManager: eventManager,
+      });
 
-  // Initialize steps
-  config.stepsKeys.forEach((stepKey) => {
-    stepsMap[stepKey] = new StepInstance(stepKey, {
-      isVisible: config.visibleSteps.includes(stepKey),
-      eventManager: eventManager,
+      stepsMap[stepKey] = stepInstance;
     });
-  });
+  }
 
-  // Calculate step properties
-  const activeStep = stepsMap[config.activeStep];
-  const stepsKeys = Object.keys(stepsMap);
-  const visibleStepsKeys = Object.keys(stepsMap).filter((stepKey) =>
-    config.visibleSteps.includes(stepKey)
-  );
-  const visibleSteps = Object.values(stepsMap).filter((step) => step.isVisible);
-  const currentStepIndex = stepsKeys.indexOf(activeStep.name);
-  const isLast = currentStepIndex === stepsKeys.length - 1;
-  const isFirst = currentStepIndex === 0;
+  const visibleStepsMap: { [key: string]: StepInstance<any> } = {};
+  if (config.visibleSteps && Array.isArray(config.visibleSteps)) {
+    config.visibleSteps.forEach((visibleStepKey: string) => {
+      if (stepsMap[visibleStepKey]) {
+        visibleStepsMap[visibleStepKey] = stepsMap[visibleStepKey];
+      }
+    });
+  }
 
   return {
     stepsMap,
-    activeStep,
-    stepsKeys,
-    visibleSteps,
-    visibleStepsKeys,
-    isLast,
-    isFirst,
+    visibleStepsMap,
+    activeStep: stepsMap[config.activeStep],
+    visibleStepsList: Object.values(visibleStepsMap).map((step) => step.name),
+    allStepsList: Object.values(stepsMap).map((step) => step.name),
+    currentVisibleIndex: Object.values(visibleStepsMap).indexOf(
+      stepsMap[config.activeStep]
+    ),
+    isLast:
+      Object.values(visibleStepsMap).indexOf(stepsMap[config.activeStep]) ===
+      Object.values(visibleStepsMap).length - 1,
+    isFirst:
+      Object.values(visibleStepsMap).indexOf(stepsMap[config.activeStep]) === 0,
+    isLastStep:
+      Object.values(visibleStepsMap).indexOf(stepsMap[config.activeStep]) ===
+      Object.values(visibleStepsMap).length - 1,
+    isFirstStep:
+      Object.values(visibleStepsMap).indexOf(stepsMap[config.activeStep]) === 0,
   };
 }

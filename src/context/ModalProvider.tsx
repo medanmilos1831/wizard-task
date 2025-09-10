@@ -8,7 +8,6 @@ import {
   type ComponentType,
   type PropsWithChildren,
 } from "react";
-import styles from "../wizards/CreateUserWizard/components/modals/Modal.module.css";
 
 interface ModalContextType {
   isVisible: boolean;
@@ -53,8 +52,8 @@ export const ModalProvider = ({ children }: PropsWithChildren) => {
       <Modal
         {...activeModalConfigRef.current}
         open={isVisible}
-        className={styles.modalContent}
-        maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+        className="rounded-lg"
+        maskClassName="bg-black bg-opacity-50"
         title={null}
         footer={null}
         width={480}

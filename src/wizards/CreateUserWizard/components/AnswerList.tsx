@@ -5,14 +5,12 @@ interface AnswerListProps<T> {
   items: T[];
   id: number;
   onAnswerClick: (item: T) => void;
-  isLocked: boolean;
 }
 
 export const AnswerList = <T extends { id: number | string; name: string }>({
   items,
   id,
   onAnswerClick,
-  isLocked,
 }: AnswerListProps<T>) => {
   return (
     <>
@@ -24,10 +22,8 @@ export const AnswerList = <T extends { id: number | string; name: string }>({
               isActive={isActive}
               label={item.name}
               onClick={() => {
-                if (isLocked) return;
                 onAnswerClick(item);
               }}
-              disabled={isLocked}
             />
           </Col>
         );

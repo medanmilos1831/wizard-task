@@ -1,113 +1,222 @@
-import { Col, Form, Input, Row, DatePicker } from "antd";
-import { type PropsWithChildren } from "react";
 import { FormWapper } from "../components";
-import { IStepInstance } from "src/Wizard/types";
+import {
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Typography,
+} from "antd";
+import { type PropsWithChildren } from "react";
+import { client, useStepState } from "../wiz";
+import styles from "./InformationStep.module.css";
 
-interface InformationStepProps extends PropsWithChildren {
-  activeStep: IStepInstance;
-  nextStep: () => void;
-  getStates: (name: string) => any;
-}
+const { Title, Text, Paragraph } = Typography;
 
-const InformationStep = ({
-  children,
-  activeStep,
-  nextStep,
-  getStates,
-}: InformationStepProps) => {
+const InformationStep = ({ children }: PropsWithChildren) => {
+  const { state, setState } = useStepState((state: any) => state);
+  const { setStepComplete, onNextStep, getStateByStepName } = client;
+
   // Determine if description is required based on selected plan or addPlan step
-  const planData = getStates("plan");
-  const addPlanData = getStates("addPlan");
-  
+  const planData = getStateByStepName("plan");
+  const addPlanData = getStateByStepName("addPlan");
+
   // Check if description is required from either plan or addPlan step
-  const isDescriptionRequired = 
-    planData?.isExtraInfoRequired || 
-    addPlanData?.isExtraInfoRequired || 
-    false;
+  const isDescriptionRequired =
+    planData?.isExtraInfoRequired || addPlanData?.isExtraInfoRequired || false;
 
   return (
-    <Row>
-      <Col span={24}>
-        <FormWapper
-          disabled={activeStep.isComplete}
-          antFormProps={{
-            onFinish: (values) => {
-              activeStep.setState(() => {
-                return values;
-              });
-              nextStep();
-            },
-            initialValues: activeStep.getStepData(),
-          }}
-        >
-          <Form.Item
-            label="First name:"
-            name="firstName"
-            required
-            rules={[
-              { required: true, message: "Please enter first name!" },
-              { min: 2, message: "First name must be at least 2 characters!" },
-            ]}
+    <Row justify="center">
+      <Col span={20} lg={16} xl={20}>
+        <Card className={styles.informationCard}>
+          <div className={styles.headerSection}>
+            <div className={styles.iconContainer}>👤</div>
+            <Title level={2} className={styles.title}>
+              Personal Information
+            </Title>
+            <Paragraph className={styles.subtitle}>
+              Tell us about yourself to complete your profile
+            </Paragraph>
+          </div>
+
+          <Divider className={styles.divider} />
+
+          <FormWapper
+            disabled={!!state}
+            antFormProps={{
+              onChange: (values: any) => {
+                setStepComplete();
+              },
+              onFinish: (values: any) => {
+                setState((prev: any) => {
+                  return {
+                    ...prev,
+                    ...values,
+                  };
+                });
+                onNextStep();
+              },
+              initialValues: state,
+              layout: "vertical",
+            }}
           >
-            <Input placeholder="First name" size="large" />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  First Name
+                </Text>
+              }
+              name="firstName"
+              required
+              rules={[
+                { required: true, message: "Please enter first name!" },
+                {
+                  min: 2,
+                  message: "First name must be at least 2 characters!",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Enter your first name..."
+                size="large"
+                className={styles.inputField}
+              />
+            </Form.Item>
 
-          <Form.Item
-            label="Last name:"
-            name="lastName"
-            required
-            rules={[
-              { required: true, message: "Please enter last name!" },
-              { min: 2, message: "Last name must be at least 2 characters!" },
-            ]}
-          >
-            <Input placeholder="Last name" size="large" />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Last Name
+                </Text>
+              }
+              name="lastName"
+              required
+              rules={[
+                { required: true, message: "Please enter last name!" },
+                {
+                  min: 2,
+                  message: "Last name must be at least 2 characters!",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Enter your last name..."
+                size="large"
+                className={styles.inputField}
+              />
+            </Form.Item>
 
-          <Form.Item label="Age:" name="age">
-            <Input placeholder="Age" size="large" type="number" />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Age
+                </Text>
+              }
+              name="age"
+            >
+              <Input
+                placeholder="Enter your age..."
+                size="large"
+                type="number"
+                className={styles.inputField}
+              />
+            </Form.Item>
 
-          <Form.Item label="E-mail:" name="email">
-            <Input placeholder="E-mail" size="large" type="email" />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Email Address
+                </Text>
+              }
+              name="email"
+            >
+              <Input
+                placeholder="Enter your email address..."
+                size="large"
+                type="email"
+                className={styles.inputField}
+              />
+            </Form.Item>
 
-          <Form.Item label="Start date:" name="startDate">
-            <DatePicker
-              placeholder="dd-----yyyy"
-              size="large"
-              style={{ width: "100%" }}
-              format="DD/MM/YYYY"
-            />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Start Date
+                </Text>
+              }
+              name="startDate"
+            >
+              <DatePicker
+                placeholder="Select start date..."
+                size="large"
+                className={styles.datePicker}
+                format="DD/MM/YYYY"
+              />
+            </Form.Item>
 
-          <Form.Item label="Location:" name="location">
-            <Input placeholder="Location" size="large" />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Location
+                </Text>
+              }
+              name="location"
+            >
+              <Input
+                placeholder="Enter your location..."
+                size="large"
+                className={styles.inputField}
+              />
+            </Form.Item>
 
-          <Form.Item label="Language:" name="language">
-            <Input placeholder="Language" size="large" />
-          </Form.Item>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Language
+                </Text>
+              }
+              name="language"
+            >
+              <Input
+                placeholder="Enter your preferred language..."
+                size="large"
+                className={styles.inputField}
+              />
+            </Form.Item>
 
-          <Form.Item
-            label="Description:"
-            name="description"
-            rules={[
-              ...(isDescriptionRequired
-                ? [{ required: true, message: "Please enter description!" }]
-                : []),
-              { min: 3, message: "Description must be at least 3 characters!" },
-            ]}
-          >
-            <Input.TextArea
-              placeholder="Type the description..."
-              size="large"
-              rows={4}
-              style={{ resize: "vertical" }}
-            />
-          </Form.Item>
-          {children}
-        </FormWapper>
+            <Form.Item
+              label={
+                <Text strong className={styles.formLabel}>
+                  Description
+                  {isDescriptionRequired && (
+                    <Text className={styles.requiredAsterisk}>*</Text>
+                  )}
+                </Text>
+              }
+              name="description"
+              rules={[
+                ...(isDescriptionRequired
+                  ? [{ required: true, message: "Please enter description!" }]
+                  : []),
+                {
+                  min: 3,
+                  message: "Description must be at least 3 characters!",
+                },
+              ]}
+            >
+              <Input.TextArea
+                placeholder="Tell us more about yourself..."
+                size="large"
+                rows={4}
+                className={styles.textArea}
+              />
+            </Form.Item>
+
+            {children}
+          </FormWapper>
+        </Card>
       </Col>
     </Row>
   );

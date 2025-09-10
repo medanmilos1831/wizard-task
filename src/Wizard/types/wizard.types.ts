@@ -2,6 +2,22 @@ import type { EventManager } from "../EventManager";
 import type { IStepInstance } from "./step.types";
 
 /**
+ * Result type from setupWizardInstance function
+ */
+export interface SetupWizardResult {
+  stepsMap: { [key: string]: IStepInstance<any> };
+  visibleStepsMap: { [key: string]: IStepInstance<any> };
+  activeStep: IStepInstance<any>;
+  visibleStepsList: string[];
+  allStepsList: string[];
+  currentVisibleIndex: number;
+  isLast: boolean;
+  isFirst: boolean;
+  isLastStep: boolean;
+  isFirstStep: boolean;
+}
+
+/**
  * Configuration interface for initializing a wizard
  */
 export interface IWizardConfig {
@@ -16,60 +32,49 @@ export interface IWizardConfig {
 /**
  * Main wizard instance interface
  * Defines the complete API for wizard functionality
+ * Matches the actual WizardInstance class implementation
  */
 export interface IWizardInstance {
+  /** Event manager for wizard events */
+  eventManager: EventManager;
   /** Currently active step instance */
-  activeStep: IStepInstance;
-  /** Callback function called when wizard is completed */
-  onFinish: (
-    success: () => void,
-    stepData: { [stepName: string]: any }
-  ) => void;
-  /** Gets all completed steps */
-  getCompletedSteps: () => IStepInstance[];
+  activeStep: IStepInstance<any>;
   /** Map of all step instances by name */
-  stepsMap: { [key: string]: IStepInstance };
-  /** Array of step keys in order */
-  stepsKeys: string[];
-  /** Array of currently visible step keys */
-  visibleStepsKeys: string[];
+  stepsMap: { [key: string]: IStepInstance<any> };
+  /** Map of currently visible step instances by name */
+  visibleStepsMap: { [key: string]: IStepInstance<any> };
+  /** Initial configuration for resetting */
+  __INIT__: IWizardConfig;
+  /** Array of currently visible step names */
+  visibleStepsList: string[];
+  /** Array of all step names */
+  allStepsList: string[];
+  /** Current index in visible steps list */
+  currentVisibleIndex: number;
   /** Whether current step is the last step */
   isLast: boolean;
   /** Whether current step is the first step */
   isFirst: boolean;
-  /** Array of currently visible step instances */
-  visibleSteps: IStepInstance[];
-  /** Event manager for wizard events */
-  eventManager: EventManager;
+  /** Callback function called when wizard is completed */
+  onFinish: (stepData: { [stepName: string]: any }, success: () => void) => void;
   /** Whether wizard has been completed successfully */
   isSuccess: boolean;
-  /** Callback function for step changes */
-  onStepChange: any;
-  /** Initial configuration for resetting */
-  __INIT__: IWizardConfig;
-  /** Navigate to previous step */
-  prevStep: () => void;
+  /** Update visible steps configuration */
+  updateVisibleSteps: (newSteps: string[]) => void;
   /** Navigate to next step */
   nextStep: () => void;
+  /** Navigate to previous step */
+  prevStep: () => void;
+  /** Navigate to specific step by name */
+  goToStep: (stepName: string) => void;
   /** Mark wizard as successfully completed */
   success: () => void;
   /** Reset wizard to initial state */
   reset: () => void;
-  /** Navigate to specific step by key */
-  goToStep: (stepKey: string) => void;
-  /** Update visible steps configuration */
-  updateVisibleSteps: (
-    callback: (currentState: {
-      visibleStepsKeys: string[];
-      stepsKeys: string[];
-    }) => { visibleStepsKeys: string[] }
-  ) => void;
-  /** Get data for specific step by name */
-  getStates: (name: string) => any;
 }
 
 /**
  * Client interface for wizard components
  * Excludes internal properties not needed by components
  */
-export type WizardClient = Omit<IWizardInstance, "__INIT__" | "eventManager">;
+export type WizardClient = Omit<IWizardInstance, "__INIT__" | "eventManager" | "visibleStepsMap" | "allStepsList" | "currentVisibleIndex">;

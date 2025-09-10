@@ -1,47 +1,92 @@
-import { Checkbox, Col, Form, Input, Row } from "antd";
-
-import { type PropsWithChildren } from "react";
-import { IStepInstance } from "../../../Wizard/types";
 import { FormWapper } from "../components";
+import {
+  Card,
+  Checkbox,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Typography,
+} from "antd";
+import { type PropsWithChildren } from "react";
+import { client } from "../wiz";
+import styles from "./AddPlanStep.module.css";
 
-interface AddPlanStepProps extends PropsWithChildren {
-  activeStep: IStepInstance;
-  nextStep: () => void;
-}
+const { Title, Text, Paragraph } = Typography;
 
-const AddPlanStep = ({ children, activeStep, nextStep }: AddPlanStepProps) => {
+const AddPlanStep = ({ children }: PropsWithChildren) => {
+  const {
+    setStepComplete,
+    onNextStep,
+    setState: setStateClient,
+    getStepState,
+  } = client;
+
   return (
     <>
-      <Row>
-        <Col span={24}>
-          <FormWapper
-            disabled={!!activeStep.getStepData()}
-            antFormProps={{
-              onFinish: (values: any) => {
-                activeStep.setState(() => {
-                  return values;
-                });
-                nextStep();
-              },
-              initialValues: activeStep.getStepData(),
-            }}
-          >
-            <Form.Item
-              label="Plan Name"
-              name="name"
-              rules={[
-                { required: true, message: "Please enter plan name!" },
-                { min: 2, message: "Plan name must be at least 2 characters!" },
-              ]}
-            >
-              <Input placeholder="Plan name" size="large" />
-            </Form.Item>
+      <Row justify="center">
+        <Col span={20} lg={16} xl={20}>
+          <Card className={styles.addPlanCard}>
+            <div className={styles.headerSection}>
+              <div className={styles.iconContainer}>📋</div>
+              <Title level={2} className={styles.title}>
+                Create Your Plan
+              </Title>
+              <Paragraph className={styles.subtitle}>
+                Add a custom plan to your account with personalized settings
+              </Paragraph>
+            </div>
 
-            <Form.Item name="isExtraInfoRequired" valuePropName="checked">
-              <Checkbox>Description is required for the plan</Checkbox>
-            </Form.Item>
-            {children}
-          </FormWapper>
+            <Divider className={styles.divider} />
+
+            <FormWapper
+              disabled={!!getStepState()}
+              antFormProps={{
+                onFinish: (values: any) => {
+                  setStateClient(values);
+                  onNextStep();
+                },
+                initialValues: getStepState(),
+                layout: "vertical",
+              }}
+            >
+              <Form.Item
+                label={
+                  <Text strong className={styles.formLabel}>
+                    Plan Name
+                  </Text>
+                }
+                name="name"
+                rules={[
+                  { required: true, message: "Please enter plan name!" },
+                  {
+                    min: 2,
+                    message: "Plan name must be at least 2 characters!",
+                  },
+                ]}
+              >
+                <Input
+                  onChange={(e: any) => {
+                    setStepComplete();
+                  }}
+                  placeholder="Enter your plan name..."
+                  size="large"
+                  className={styles.inputField}
+                />
+              </Form.Item>
+
+              <Form.Item name="isExtraInfoRequired" valuePropName="checked">
+                <Checkbox className={styles.checkboxContainer}>
+                  <Text className={styles.checkboxText}>
+                    Description is required for this plan
+                  </Text>
+                </Checkbox>
+              </Form.Item>
+
+              {children}
+            </FormWapper>
+          </Card>
         </Col>
       </Row>
     </>

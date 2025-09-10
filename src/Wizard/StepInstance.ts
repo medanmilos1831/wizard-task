@@ -1,91 +1,153 @@
-import { EVENTS } from "./contants";
 import type { EventManager } from "./EventManager";
-import type { IStepInstance, setStateCallbackType } from "./types";
+import type { IStepInstance } from "./types";
+import { EVENTS } from "./contants";
 
 /**
- * Represents a single step in the wizard flow
- * Manages step state, completion status, and visibility
+ * StepInstance class represents a single step in the wizard
+ * Manages step state, completion status, and event dispatching
+ *
+ * @template TState - Type of the step's state data
  */
-export class StepInstance implements IStepInstance {
-  /** Unique identifier for this step */
+export class StepInstance<TState = any> implements IStepInstance<TState> {
+  /** Name of the step */
   name: string;
-  /** Current data/state of this step */
-  state: any = undefined;
-  /** Whether this step is visible in the current wizard flow */
-  isVisible: boolean;
-  /** Whether this step has been completed and locked */
+  /** Whether the step has been initially completed */
+  initialComplete: boolean = false;
+  /** Current state data of the step */
+  state: TState = undefined as TState;
+  /** Previous state data of the step */
+  prevState: TState = undefined as TState;
+  /** Whether the step is currently complete */
   isComplete: boolean = false;
+  /** Whether the step is visible in the wizard */
+  isVisible: boolean = true;
+  /** Whether the step has been changed since last save */
+  isChanged: boolean = false;
   /** Event manager for dispatching step events */
-  private eventManager: EventManager;
+  eventManager: EventManager;
 
   /**
-   * Creates a new step instance
-   * @param name - Unique identifier for this step
-   * @param options - Configuration options for the step
-   * @param options.isVisible - Whether this step should be visible initially
+   * Creates a new StepInstance
+   * @param name - Name of the step
+   * @param options - Configuration options
    * @param options.eventManager - Event manager for dispatching events
    */
   constructor(
     name: string,
     {
-      isVisible,
       eventManager,
     }: {
-      isVisible: boolean;
       eventManager: EventManager;
     }
   ) {
     this.name = name;
-    this.isComplete = false;
-    this.isVisible = isVisible;
     this.eventManager = eventManager;
   }
 
   /**
-   * Marks this step as completed and dispatches completion event
-   * Once completed, the step becomes locked and cannot be modified
+   * Resets the step to its initial state
+   * Clears all state data and resets completion flags
    */
-  completeStep = () => {
-    this.isComplete = true;
-    this.eventManager.dispatch({
-      type: EVENTS.STEP_COMPLETED,
-    });
+  reset = () => {
+    this.initialComplete = false;
+    this.state = undefined as TState;
+    this.prevState = undefined as TState;
+    this.isComplete = false;
+    this.isVisible = true;
+    this.isChanged = false;
   };
 
   /**
-   * Updates the step's state with new data
-   * @param setStepDataCallback - Function that returns new state based on current state
+   * Marks the step as complete and dispatches completion event
+   * Used when step validation passes and user can proceed
    */
-  setState = (setStepDataCallback: setStateCallbackType) => {
-    this.state = setStepDataCallback(this.state);
+  setStepComplete = () => {
+    this.isComplete = true;
     this.eventManager.dispatch({
-      type: EVENTS.STEP_DATA_SET,
+      type: EVENTS.ON_STEP_COMPLETE,
       payload: this,
     });
   };
 
   /**
-   * Gets the current step data/state
-   * @returns The current state of this step
+   * Handles step completion when moving to next step
+   * Marks step as complete and initially completed, then dispatches next event
    */
-  getStepData = () => {
+  onNextStep = () => {
+    this.isComplete = true;
+    this.initialComplete = true;
+    this.eventManager.dispatch({
+      type: EVENTS.ON_STEP_NEXT,
+      payload: this,
+    });
+  };
+
+  /**
+   * Handles step state when moving to previous step
+   * Resets step state if it hasn't been initially completed
+   */
+  onPrevStep = () => {
+    if (!this.initialComplete) {
+      this.isComplete = false;
+      this.state = undefined as TState;
+    }
+    this.eventManager.dispatch({
+      type: EVENTS.ON_STEP_PREV,
+      payload: this,
+    });
+  };
+
+  /**
+   * Updates the step state with a new value or function
+   * Automatically saves previous state before updating
+   * @param value - New state value or function that returns new state
+   */
+  setState = (value: TState | ((prev: TState) => TState)) => {
+    this.prevState = this.state;
+
+    this.state =
+      typeof value === "function"
+        ? (value as (prev: TState) => TState)(this.state)
+        : value;
+  };
+
+  /**
+   * Gets the current step data
+   * @returns Current state data
+   */
+  getStepData = (): TState => {
     return this.state;
   };
 
   /**
-   * Sets the visibility of this step
-   * @param isVisible - Whether this step should be visible
+   * Gets the previous step data
+   * @returns Previous state data
+   */
+  getPrevStepData = (): TState => {
+    return this.prevState;
+  };
+
+  /**
+   * Alias for setStepComplete method
+   * Marks the step as complete
+   */
+  completeStep = () => {
+    this.setStepComplete();
+  };
+
+  /**
+   * Sets the visibility of the step
+   * @param isVisible - Whether the step should be visible
    */
   setIsVisible = (isVisible: boolean) => {
     this.isVisible = isVisible;
   };
 
   /**
-   * Resets the step to its initial state
-   * Clears all data and marks as incomplete
+   * Sets the changed status of the step
+   * @param isChanged - Whether the step has been changed
    */
-  reset = () => {
-    this.isComplete = false;
-    this.state = undefined;
+  setIsChanged = (isChanged: boolean) => {
+    this.isChanged = isChanged;
   };
 }

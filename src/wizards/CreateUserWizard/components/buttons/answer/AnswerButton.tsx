@@ -1,4 +1,5 @@
 import styles from "./answerButton.module.css";
+
 const AnswerButton = ({
   label,
   onClick,
@@ -10,16 +11,22 @@ const AnswerButton = ({
   isActive?: boolean;
   disabled?: boolean;
 }) => {
+  let buttonClasses = styles.answerButton;
+  
+  if (disabled) {
+    buttonClasses += ` ${styles.inactive}`;
+  } else if (isActive) {
+    buttonClasses += ` ${styles.active}`;
+  }
+
   return (
-    <div
-      className={`${styles.answerButton} ${
-        isActive ? styles.active : styles.inactive
-      } ${disabled ? styles.disabled : ""}`}
+    <button
+      className={buttonClasses}
       onClick={disabled ? undefined : onClick}
-      style={{ cursor: disabled ? "not-allowed" : "pointer" }}
+      disabled={disabled}
     >
       {label}
-    </div>
+    </button>
   );
 };
 

@@ -1,16 +1,15 @@
-
 .wrapper {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 1px solid #e2e8f0;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1rem;
   box-shadow: 
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06),
     0 0 0 1px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   min-height: 600px;
-  max-width: 1000px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   position: relative;
@@ -51,8 +50,8 @@
 
 @media (max-width: 768px) {
   .wrapper {
-    padding: 1.5rem;
-    margin: 1rem;
+    padding: 0.75rem;
+    margin: 0.5rem;
     border-radius: 12px;
     min-height: 500px;
   }

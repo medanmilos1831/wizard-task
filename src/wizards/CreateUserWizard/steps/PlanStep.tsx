@@ -1,28 +1,77 @@
+import { AnswerList } from "../components";
 import { Row } from "antd";
 import { type PropsWithChildren } from "react";
-import { IStepInstance } from "src/Wizard/types";
-import { AnswerList } from "../components";
+import { client, useStepState } from "../wiz";
+import { WarningModal } from "../components/modals";
+import type { IStepInstance } from "../../../Wizard/types";
+import { useModal } from "../../../context/ModalProvider";
 
-interface PlanStepProps extends PropsWithChildren {
-  activeStep: IStepInstance;
-  getStates: (name: string) => any;
-}
-
-const PlanStep = ({ children, activeStep, getStates }: PlanStepProps) => {
+const PlanStep = ({ children }: PropsWithChildren) => {
+  const { state, setState } = useStepState((state: any) => {
+    return state;
+  });
+  const {
+    getStateByStepName,
+    setStepComplete,
+    getInitialComplete,
+    getAheadSteps,
+    updateVisibleSteps,
+    goToStep,
+  } = client;
+  const { open, close } = useModal();
   return (
     <>
       <Row gutter={24}>
         <AnswerList
           items={[
-            ...getStates("accountType").plan,
+            ...getStateByStepName("accountType").plan,
             { id: "all", name: "All Plans", isExtraInfoRequired: false },
           ]}
-          id={activeStep.getStepData()?.id}
-          isLocked={activeStep.isComplete}
+          id={state?.id}
           onAnswerClick={(item) => {
-            activeStep.setState((data) => {
+            if (item.id != state?.id && getInitialComplete()) {
+              open(
+                () => (
+                  <WarningModal
+                    onConfirm={() => {
+                      const aheadSteps = getAheadSteps();
+                      aheadSteps.forEach(
+                        ({ stepInstance }: { stepInstance: IStepInstance }) => {
+                          stepInstance.reset();
+                        }
+                      );
+                      if (item.id === "all") {
+                        updateVisibleSteps([
+                          "accountType",
+                          "plan",
+                          "addPlan",
+                          "information",
+                        ]);
+                        goToStep("addPlan");
+                      } else {
+                        updateVisibleSteps([
+                          "accountType",
+                          "plan",
+                          "information",
+                        ]);
+                        goToStep("information");
+                      }
+
+                      close();
+                    }}
+                    onCancel={() => close()}
+                  />
+                ),
+                {
+                  centered: true,
+                }
+              );
+              return;
+            }
+            setStepComplete();
+            setState((prev) => {
               return {
-                ...data,
+                ...prev,
                 ...item,
               };
             });

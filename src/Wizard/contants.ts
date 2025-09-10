@@ -4,11 +4,13 @@
  */
 export enum EVENTS {
   /** Fired when the active step changes */
-  STEP_CHANGED = "STEP_CHANGED",
+  ON_STEP_CHANGE = "ON_STEP_CHANGE",
   /** Fired when a step is marked as completed */
-  STEP_COMPLETED = "STEP_COMPLETED",
-  /** Fired when step data is updated */
-  STEP_DATA_SET = "STEP_DATA_SET",
+  ON_STEP_COMPLETE = "ON_STEP_COMPLETE",
+  /** Fired when moving to next step */
+  ON_STEP_NEXT = "ON_STEP_NEXT",
+  /** Fired when moving to previous step */
+  ON_STEP_PREV = "ON_STEP_PREV",
   /** Fired when the entire wizard is completed successfully */
   ON_SUCCESS = "ON_SUCCESS",
   /** Fired when the wizard is reset to initial state */
