@@ -36,20 +36,61 @@ const WizzardProvider = ({
 const useWizzard = () => {
   return useContext(WizzardContext);
 };
-
-const useWatchWizard = (
-  event: string,
-  callback: (wizardInstance: any) => any
-) => {
+const useOnStepChange = () => {
   const wizzard = useWizzard();
   return useSyncExternalStore(
     (callback) => {
-      return wizzard.instance!.eventManager.subscribe(event, () => {
+      return wizzard.instance!.eventManager.subscribe("ON_STEP_CHANGE", () => {
         callback();
       });
     },
     () => {
-      return callback(wizzard.instance);
+      return wizzard.instance?.activeStep.name;
+    }
+  );
+};
+
+const useOnSuccess = () => {
+  const wizzard = useWizzard();
+  return useSyncExternalStore(
+    (callback) => {
+      return wizzard.instance!.eventManager.subscribe("ON_SUCCESS", () => {
+        callback();
+      });
+    },
+    () => {
+      return wizzard.instance?.isSuccess;
+    }
+  );
+};
+
+const useOnReset = () => {
+  const wizzard = useWizzard();
+  return useSyncExternalStore(
+    (callback) => {
+      return wizzard.instance!.eventManager.subscribe("ON_RESET", () => {
+        callback();
+      });
+    },
+    () => {
+      return wizzard.instance?.activeStep.name;
+    }
+  );
+};
+
+const useOnStepComplete = () => {
+  const wizzard = useWizzard();
+  return useSyncExternalStore(
+    (callback) => {
+      return wizzard.instance!.eventManager.subscribe(
+        "ON_STEP_COMPLETE",
+        () => {
+          callback();
+        }
+      );
+    },
+    () => {
+      return wizzard.instance?.activeStep.isComplete;
     }
   );
 };
@@ -99,9 +140,12 @@ const useStepState = (selector: any) => {
 };
 
 export {
-  useWatchWizard,
   useWizardClient,
   WizzardProvider,
   useWizzard,
   useStepState,
+  useOnStepChange,
+  useOnReset,
+  useOnSuccess,
+  useOnStepComplete,
 };

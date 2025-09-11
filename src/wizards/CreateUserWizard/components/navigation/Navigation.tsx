@@ -1,17 +1,14 @@
 import {
-  useWatchWizard,
+  useOnReset,
+  useOnStepChange,
   useWizardClient,
 } from "../../../../Wizard/WizzardProvider";
 import styles from "./Navigation.module.css";
 
 export const Navigation = () => {
   const client = useWizardClient();
-  const stepname = useWatchWizard("ON_STEP_CHANGE", (wizardInstance: any) => {
-    return wizardInstance?.activeStep.name;
-  });
-  useWatchWizard("ON_RESET", (wizardInstance: any) => {
-    return wizardInstance?.activeStep.name;
-  });
+  const stepname = useOnStepChange();
+  useOnReset();
   return (
     <div className={styles.navigation}>
       {client.getVisibleSteps().map((step: any, index: number) => {

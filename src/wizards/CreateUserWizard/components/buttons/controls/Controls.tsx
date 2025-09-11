@@ -1,6 +1,6 @@
 import {
+  useOnStepComplete,
   useWizardClient,
-  useWatchWizard,
 } from "../../../../../Wizard/WizzardProvider";
 import { useModal } from "../../../../../context/ModalProvider";
 import { ResetWarning } from "../../modals";
@@ -26,12 +26,7 @@ const Controls = ({
   const isLast = client.getIsLast();
   const reset = client.reset;
   const nummberOfCompletedSteps = client.getNumberOfCompletedSteps();
-  const isStepComplete = useWatchWizard(
-    "ON_STEP_COMPLETE",
-    (wizardInstance: any) => {
-      return wizardInstance?.activeStep.isComplete;
-    }
-  );
+  const isStepComplete = useOnStepComplete();
   const { open, close } = useModal();
   return (
     <div className={styles.controlsContainer}>

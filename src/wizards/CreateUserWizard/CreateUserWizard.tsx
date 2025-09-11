@@ -1,4 +1,5 @@
 import { Col, Row } from "antd";
+import { useOnReset, useOnSuccess } from "../../Wizard/WizzardProvider";
 import {
   Controls,
   Navigation,
@@ -6,15 +7,10 @@ import {
   SuccessView,
   Wrapper,
 } from "./components";
-import { useWatchWizard } from "../../Wizard/WizzardProvider";
 
 const SuccessWrapper = ({ children }: { children: React.ReactNode }) => {
-  const isSuccess = useWatchWizard("ON_SUCCESS", (wizardInstance: any) => {
-    return wizardInstance.isSuccess;
-  });
-  useWatchWizard("ON_RESET", (wizardInstance: any) => {
-    return wizardInstance.isSuccess;
-  });
+  const isSuccess = useOnSuccess();
+  useOnReset();
   return <>{isSuccess ? <SuccessView /> : children}</>;
 };
 

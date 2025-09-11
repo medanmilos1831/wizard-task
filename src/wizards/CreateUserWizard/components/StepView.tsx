@@ -4,16 +4,12 @@ import {
   InformationStep,
   PlanStep,
 } from "../steps";
-import { useWatchWizard } from "../../../Wizard/WizzardProvider";
+import { useOnReset, useOnStepChange } from "../../../Wizard/WizzardProvider";
 import { PropsWithChildren } from "react";
 
 export const StepView = ({ children }: { children: (props: any) => any }) => {
-  const stepname = useWatchWizard("ON_STEP_CHANGE", (wizardInstance: any) => {
-    return wizardInstance?.activeStep.name;
-  });
-  useWatchWizard("ON_RESET", (wizardInstance: any) => {
-    return wizardInstance?.activeStep;
-  });
+  const stepname = useOnStepChange();
+  useOnReset();
   const ViewsMap: any = {
     ["accountType"]: ({ children }: PropsWithChildren) => (
       <AccountTypeStep>

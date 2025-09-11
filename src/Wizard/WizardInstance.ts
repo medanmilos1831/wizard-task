@@ -1,7 +1,7 @@
-import { EventManager } from "./EventManager";
-import type { IWizardConfig, SetupWizardResult, IStepInstance } from "./types";
-import { setupWizardInstance } from "./utils";
 import { EVENTS } from "./contants";
+import { EventManager } from "./EventManager";
+import type { IStepInstance, IWizardConfig } from "./types";
+import { setupWizardInstance } from "./utils";
 
 /**
  * Main wizard instance that manages the entire wizard flow
@@ -135,57 +135,49 @@ class WizardInstance {
    * If on the last step, triggers the onFinish callback
    */
   nextStep = () => {
-    try {
-      const currentIndex = this.visibleStepsList.indexOf(this.activeStep.name);
+    const currentIndex = this.visibleStepsList.indexOf(this.activeStep.name);
 
-      if (currentIndex === -1) {
-        throw new Error("nextStep: Current step not found in visibleStepsList");
-      }
-
-      if (this.isLast) {
-        // this.success();
-        // Collect all step states by key
-        const allStepStates: { [key: string]: any } = {};
-        Object.keys(this.stepsMap).forEach((stepKey) => {
-          try {
-            allStepStates[stepKey] = this.stepsMap[stepKey].state;
-          } catch (error) {
-            // Failed to get state for step
-            allStepStates[stepKey] = null;
-          }
-        });
-
-        this.onFinish(allStepStates, this.success);
-        return;
-      }
-
-      if (currentIndex < this.visibleStepsList.length - 1) {
-        const nextStepName = this.visibleStepsList[currentIndex + 1];
-        const nextStepInstance = this.stepsMap[nextStepName];
-
-        if (nextStepInstance) {
-          this.activeStep = nextStepInstance;
-          this.currentVisibleIndex = currentIndex + 1;
-          this.isLast = currentIndex + 1 === this.visibleStepsList.length - 1;
-          this.isFirst = false;
-        } else {
-          throw new Error(
-            `nextStep: Next step '${nextStepName}' not found in stepsMap`
-          );
-        }
-      }
-
-      this.eventManager.dispatch({
-        type: EVENTS.ON_STEP_CHANGE,
-        payload: this,
-      });
-    } catch (error) {
-      // Error moving to next step
-      this.eventManager.dispatch({
-        type: "WIZARD_ERROR",
-        payload: { error, method: "nextStep" },
-      });
+    if (currentIndex === -1) {
+      throw new Error("nextStep: Current step not found in visibleStepsList");
     }
+
+    if (this.isLast) {
+      // this.success();
+      // Collect all step states by key
+      const allStepStates: { [key: string]: any } = {};
+      Object.keys(this.stepsMap).forEach((stepKey) => {
+        try {
+          allStepStates[stepKey] = this.stepsMap[stepKey].state;
+        } catch (error) {
+          // Failed to get state for step
+          allStepStates[stepKey] = null;
+        }
+      });
+
+      this.onFinish(allStepStates, this.success);
+      return;
+    }
+
+    if (currentIndex < this.visibleStepsList.length - 1) {
+      const nextStepName = this.visibleStepsList[currentIndex + 1];
+      const nextStepInstance = this.stepsMap[nextStepName];
+
+      if (nextStepInstance) {
+        this.activeStep = nextStepInstance;
+        this.currentVisibleIndex = currentIndex + 1;
+        this.isLast = currentIndex + 1 === this.visibleStepsList.length - 1;
+        this.isFirst = false;
+      } else {
+        throw new Error(
+          `nextStep: Next step '${nextStepName}' not found in stepsMap`
+        );
+      }
+    }
+
+    this.eventManager.dispatch({
+      type: EVENTS.ON_STEP_CHANGE,
+      payload: this,
+    });
   };
 
   /**
@@ -216,48 +208,39 @@ class WizardInstance {
    * @param stepName - Name of the step to navigate to
    */
   goToStep = (stepName: string) => {
-    try {
-      // Validate input
-      if (!stepName || typeof stepName !== "string") {
-        throw new Error("goToStep: stepName must be a non-empty string");
-      }
-
-      // Check if step exists in visible steps
-      if (!this.visibleStepsList.includes(stepName)) {
-        throw new Error(`goToStep: Step '${stepName}' is not visible`);
-      }
-
-      // Check if step exists in steps map
-      const stepInstance = this.stepsMap[stepName];
-      if (!stepInstance) {
-        throw new Error(
-          `goToStep: Step '${stepName}' does not exist in stepsMap`
-        );
-      }
-
-      // Update active step
-      this.activeStep = stepInstance;
-
-      // Update current visible index
-      this.currentVisibleIndex = this.visibleStepsList.indexOf(stepName);
-
-      // Update isFirst and isLast flags
-      this.isFirst = this.currentVisibleIndex === 0;
-      this.isLast =
-        this.currentVisibleIndex === this.visibleStepsList.length - 1;
-
-      // Dispatch step change event
-      this.eventManager.dispatch({
-        type: EVENTS.ON_STEP_CHANGE,
-        payload: this,
-      });
-    } catch (error) {
-      // Error navigating to step
-      this.eventManager.dispatch({
-        type: "WIZARD_ERROR",
-        payload: { error, method: "goToStep", stepName },
-      });
+    // Validate input
+    if (!stepName || typeof stepName !== "string") {
+      throw new Error("goToStep: stepName must be a non-empty string");
     }
+
+    // Check if step exists in visible steps
+    if (!this.visibleStepsList.includes(stepName)) {
+      throw new Error(`goToStep: Step '${stepName}' is not visible`);
+    }
+
+    // Check if step exists in steps map
+    const stepInstance = this.stepsMap[stepName];
+    if (!stepInstance) {
+      throw new Error(
+        `goToStep: Step '${stepName}' does not exist in stepsMap`
+      );
+    }
+
+    // Update active step
+    this.activeStep = stepInstance;
+
+    // Update current visible index
+    this.currentVisibleIndex = this.visibleStepsList.indexOf(stepName);
+
+    // Update isFirst and isLast flags
+    this.isFirst = this.currentVisibleIndex === 0;
+    this.isLast = this.currentVisibleIndex === this.visibleStepsList.length - 1;
+
+    // Dispatch step change event
+    this.eventManager.dispatch({
+      type: EVENTS.ON_STEP_CHANGE,
+      payload: this,
+    });
   };
 
   /**
