@@ -5,17 +5,22 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { createWizard } from "./createWizard";
+import { IWizardConfig } from "./types";
 
 const WizzardContext = createContext<any>(null);
 const WizzardProvider = ({
   children,
-  wizzard,
+  config,
   onFinish,
 }: {
   children: React.ReactNode;
-  wizzard: any;
+  config: IWizardConfig;
   onFinish: (stepData: Record<string, any>, success: () => void) => void;
 }) => {
+  const [wizzard] = useState(() => {
+    return createWizard(config);
+  });
   useEffect(() => {
     if (onFinish) {
       wizzard.instance.onFinish = onFinish;

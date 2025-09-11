@@ -9,7 +9,7 @@ import { WizardInstance } from "./WizardInstance";
  * @param config - Initial wizard configuration containing steps and settings
  * @returns Object containing wizard hooks and components for React integration
  */
-const createWizardNew = (config: IWizardConfig) => {
+const createWizard = (config: IWizardConfig) => {
   const wizardInstance: IWizardInstance | undefined = new WizardInstance({
     config,
     onFinish: () => {},
@@ -20,4 +20,4 @@ const createWizardNew = (config: IWizardConfig) => {
   };
 };
 
-export { createWizardNew };
+export { createWizard };

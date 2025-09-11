@@ -1,13 +1,7 @@
 import { ModalProvider } from "./context/ModalProvider";
 import { useCreateUser } from "./hooks/useCreateUser";
-import { createWizardNew } from "./Wizard/createWizard";
 import { WizzardProvider } from "./Wizard/WizzardProvider";
 import { CreateUserWizard } from "./wizards";
-const wizzard = createWizardNew({
-  activeStep: "accountType",
-  stepsKeys: ["accountType", "plan", "addPlan", "information"],
-  visibleSteps: ["accountType", "plan"],
-});
 
 function App() {
   const createUserMutation = useCreateUser();
@@ -15,7 +9,11 @@ function App() {
     <ModalProvider>
       <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
         <WizzardProvider
-          wizzard={wizzard}
+          config={{
+            activeStep: "accountType",
+            stepsKeys: ["accountType", "plan", "addPlan", "information"],
+            visibleSteps: ["accountType", "plan"],
+          }}
           onFinish={async (data, success) => {
             try {
               await createUserMutation.mutateAsync(
