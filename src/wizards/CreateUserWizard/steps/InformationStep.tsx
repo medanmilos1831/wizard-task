@@ -11,13 +11,12 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./InformationStep.module.css";
-import { useStepState, useWizardClient } from "../createUserWizzard";
+import { useStepState, client } from "../createUserWizzard";
 
 const { Title, Text, Paragraph } = Typography;
 
 const InformationStep = ({ children }: PropsWithChildren) => {
   const { state, setState } = useStepState((state: any) => state);
-  const client = useWizardClient();
   const { setStepComplete, onNextStep, getStateByStepName } = client;
 
   // Determine if description is required based on selected plan or addPlan step

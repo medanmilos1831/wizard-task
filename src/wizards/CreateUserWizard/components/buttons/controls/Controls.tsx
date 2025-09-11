@@ -1,7 +1,7 @@
 import { useModal } from "../../../../../context/ModalProvider";
 import { ResetWarning } from "../../modals";
 import styles from "./controlsButton.module.css";
-import { useWizardClient } from "../../../createUserWizzard";
+import { client } from "../../../createUserWizzard";
 import { useOnStepComplete } from "../../../createUserWizzard";
 
 const Controls = ({
@@ -14,7 +14,6 @@ const Controls = ({
   isLoading?: boolean;
 }) => {
   // Use client methods directly
-  const client = useWizardClient();
   const onNextStep = client.onNextStep;
   const onPrevStep = client.onPrevStep;
   const getStepState = client.getStepState;

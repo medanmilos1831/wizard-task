@@ -5,7 +5,7 @@ import { data } from "../../../mock";
 import { useModal } from "../../../context/ModalProvider";
 import { WarningModal } from "../components/modals";
 import type { IStepInstance } from "../../../Wizard/types";
-import { useStepState, useWizardClient } from "../createUserWizzard";
+import { useStepState, client } from "../createUserWizzard";
 
 /**
  * AccountTypeStep component for selecting account type
@@ -18,7 +18,6 @@ import { useStepState, useWizardClient } from "../createUserWizzard";
 const AccountTypeStep = ({ children }: PropsWithChildren) => {
   const { state, setState } = useStepState((state: any) => state);
   // Use client methods directly
-  const client = useWizardClient();
   const setStepComplete = client.setStepComplete;
   const getInitialComplete = client.getInitialComplete;
   const updateVisibleSteps = client.updateVisibleSteps;

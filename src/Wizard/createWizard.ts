@@ -1,11 +1,4 @@
-import {
-  createContext,
-  createElement,
-  useContext,
-  useEffect,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Client } from "./Client";
 import type { IWizardConfig, IWizardInstance } from "./types";
 import { WizardInstance } from "./WizardInstance";
@@ -16,66 +9,50 @@ const createWizard = (config: IWizardConfig) => {
     onFinish: () => {},
   });
   const client = new Client(wizardInstance);
-  const Context = createContext({
-    wizardInstance,
-    client,
-  });
+
   const useOnStepChange = () => {
-    const wizzard = useContext(Context);
     return useSyncExternalStore(
       (callback) => {
-        return wizzard.wizardInstance!.eventManager.subscribe(
-          "ON_STEP_CHANGE",
-          () => {
-            callback();
-          }
-        );
+        return wizardInstance!.eventManager.subscribe("ON_STEP_CHANGE", () => {
+          callback();
+        });
       },
       () => {
-        return wizzard.wizardInstance?.activeStep.name;
+        return wizardInstance?.activeStep.name;
       }
     );
   };
 
   const useOnSuccess = () => {
-    const wizzard = useContext(Context);
     return useSyncExternalStore(
       (callback) => {
-        return wizzard.wizardInstance!.eventManager.subscribe(
-          "ON_SUCCESS",
-          () => {
-            callback();
-          }
-        );
+        return wizardInstance!.eventManager.subscribe("ON_SUCCESS", () => {
+          callback();
+        });
       },
       () => {
-        return wizzard.wizardInstance?.isSuccess;
+        return wizardInstance?.isSuccess;
       }
     );
   };
 
   const useOnReset = () => {
-    const wizzard = useContext(Context);
     return useSyncExternalStore(
       (callback) => {
-        return wizzard.wizardInstance!.eventManager.subscribe(
-          "ON_RESET",
-          () => {
-            callback();
-          }
-        );
+        return wizardInstance!.eventManager.subscribe("ON_RESET", () => {
+          callback();
+        });
       },
       () => {
-        return wizzard.wizardInstance?.activeStep;
+        return wizardInstance?.activeStep;
       }
     );
   };
 
   const useOnStepComplete = () => {
-    const wizzard = useContext(Context);
     return useSyncExternalStore(
       (callback) => {
-        return wizzard.wizardInstance!.eventManager.subscribe(
+        return wizardInstance!.eventManager.subscribe(
           "ON_STEP_COMPLETE",
           () => {
             callback();
@@ -83,15 +60,12 @@ const createWizard = (config: IWizardConfig) => {
         );
       },
       () => {
-        return wizzard.wizardInstance?.activeStep.isComplete;
+        return wizardInstance?.activeStep.isComplete;
       }
     );
   };
 
   const useStepState = (selector: any) => {
-    const wizzard = useContext(Context);
-    const wizardInstance = wizzard.wizardInstance;
-
     const [state, setState] = useState(() => {
       return selector(
         wizardInstance?.activeStep.state,
@@ -127,6 +101,7 @@ const createWizard = (config: IWizardConfig) => {
     };
   };
   return {
+    client,
     Wizard: ({
       children,
       onFinish,
@@ -139,16 +114,7 @@ const createWizard = (config: IWizardConfig) => {
           wizardInstance.onFinish = onFinish;
         }
       });
-      return createElement(Context.Provider, {
-        value: { wizardInstance, client },
-        children,
-      });
-    },
-    useWizardClient: () => {
-      return useContext(Context).client;
-    },
-    useWizardInstance: () => {
-      return useContext(Context).wizardInstance;
+      return children;
     },
     useOnStepChange: () => {
       return useOnStepChange();

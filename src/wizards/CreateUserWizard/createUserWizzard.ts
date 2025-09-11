@@ -2,13 +2,12 @@ import { createWizard } from "../../Wizard/createWizard";
 
 const {
   Wizard,
-  useWizardInstance,
-  useWizardClient,
   useOnStepChange,
   useOnSuccess,
   useOnReset,
   useOnStepComplete,
   useStepState,
+  client,
 } = createWizard({
   activeStep: "accountType",
   stepsKeys: ["accountType", "plan", "addPlan", "information"],
@@ -17,11 +16,10 @@ const {
 
 export {
   Wizard,
-  useWizardInstance,
-  useWizardClient,
   useOnStepChange,
   useOnSuccess,
   useOnReset,
   useOnStepComplete,
   useStepState,
+  client,
 };

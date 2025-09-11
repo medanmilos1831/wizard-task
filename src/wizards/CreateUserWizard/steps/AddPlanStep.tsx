@@ -11,12 +11,11 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./AddPlanStep.module.css";
-import { useWizardClient } from "../createUserWizzard";
+import { client } from "../createUserWizzard";
 
 const { Title, Text, Paragraph } = Typography;
 
 const AddPlanStep = ({ children }: PropsWithChildren) => {
-  const client = useWizardClient();
   const {
     setStepComplete,
     onNextStep,
