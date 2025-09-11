@@ -11,7 +11,7 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./InformationStep.module.css";
-import { useStepState, useWizardClient } from "../../../Wizard/WizzardProvider";
+import { useStepState, useWizardClient } from "../createUserWizzard";
 
 const { Title, Text, Paragraph } = Typography;
 

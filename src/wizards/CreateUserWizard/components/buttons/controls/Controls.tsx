@@ -1,10 +1,8 @@
-import {
-  useOnStepComplete,
-  useWizardClient,
-} from "../../../../../Wizard/WizzardProvider";
 import { useModal } from "../../../../../context/ModalProvider";
 import { ResetWarning } from "../../modals";
 import styles from "./controlsButton.module.css";
+import { useWizardClient } from "../../../createUserWizzard";
+import { useOnStepComplete } from "../../../createUserWizzard";
 
 const Controls = ({
   isForm = false,

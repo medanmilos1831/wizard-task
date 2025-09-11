@@ -5,11 +5,7 @@ import { data } from "../../../mock";
 import { useModal } from "../../../context/ModalProvider";
 import { WarningModal } from "../components/modals";
 import type { IStepInstance } from "../../../Wizard/types";
-import {
-  useStepState,
-  useWatchWizard,
-  useWizardClient,
-} from "../../../Wizard/WizzardProvider";
+import { useStepState, useWizardClient } from "../createUserWizzard";
 
 /**
  * AccountTypeStep component for selecting account type
@@ -24,15 +20,11 @@ const AccountTypeStep = ({ children }: PropsWithChildren) => {
   // Use client methods directly
   const client = useWizardClient();
   const setStepComplete = client.setStepComplete;
-  const isComplete = client.getIsComplete();
-  const getPrevStepState = client.getPrevStepState;
   const getInitialComplete = client.getInitialComplete;
   const updateVisibleSteps = client.updateVisibleSteps;
   const onNextStep = client.onNextStep;
-  const onPrevStep = client.onPrevStep;
   const getAheadSteps = client.getAheadSteps;
   const { open, close } = useModal();
-
   return (
     <>
       <Row gutter={24}>

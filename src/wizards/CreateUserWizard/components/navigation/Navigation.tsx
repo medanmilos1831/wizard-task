@@ -2,7 +2,7 @@ import {
   useOnReset,
   useOnStepChange,
   useWizardClient,
-} from "../../../../Wizard/WizzardProvider";
+} from "../../createUserWizzard";
 import styles from "./Navigation.module.css";
 
 export const Navigation = () => {

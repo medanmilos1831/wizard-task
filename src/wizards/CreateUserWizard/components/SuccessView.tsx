@@ -1,6 +1,7 @@
 import { Button, Col, Row, Typography } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import { useWizardClient } from "../../../Wizard/WizzardProvider";
+import { useWizardClient } from "../createUserWizzard";
+
 const { Title, Paragraph } = Typography;
 export const SuccessView = () => {
   const client = useWizardClient();
