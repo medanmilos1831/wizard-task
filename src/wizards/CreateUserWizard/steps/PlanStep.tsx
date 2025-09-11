@@ -1,12 +1,13 @@
 import { AnswerList } from "../components";
 import { Row } from "antd";
 import { type PropsWithChildren } from "react";
-import { client, useStepState } from "../wiz";
 import { WarningModal } from "../components/modals";
 import type { IStepInstance } from "../../../Wizard/types";
 import { useModal } from "../../../context/ModalProvider";
+import { useStepState, useWizardClient } from "../../../Wizard/WizzardProvider";
 
 const PlanStep = ({ children }: PropsWithChildren) => {
+  const client = useWizardClient();
   const { state, setState } = useStepState((state: any) => {
     return state;
   });

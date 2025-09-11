@@ -1,5 +1,8 @@
+import {
+  useWizardClient,
+  useWatchWizard,
+} from "../../../../../Wizard/WizzardProvider";
 import { useModal } from "../../../../../context/ModalProvider";
-import { client, useWatchWizard } from "../../../wiz";
 import { ResetWarning } from "../../modals";
 import styles from "./controlsButton.module.css";
 
@@ -13,6 +16,7 @@ const Controls = ({
   isLoading?: boolean;
 }) => {
   // Use client methods directly
+  const client = useWizardClient();
   const onNextStep = client.onNextStep;
   const onPrevStep = client.onPrevStep;
   const getStepState = client.getStepState;
@@ -29,7 +33,6 @@ const Controls = ({
     }
   );
   const { open, close } = useModal();
-
   return (
     <div className={styles.controlsContainer}>
       <button

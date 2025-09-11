@@ -3,6 +3,18 @@ class Client {
   constructor(wizardInstance: any) {
     this.wizardInstance = wizardInstance;
   }
+  getStepsStateMap = () => {
+    const allStepStates: { [key: string]: any } = {};
+    Object.keys(this.wizardInstance?.stepsMap).forEach((stepKey) => {
+      try {
+        allStepStates[stepKey] = this.wizardInstance?.stepsMap[stepKey].state;
+      } catch (error) {
+        // Failed to get state for step
+        allStepStates[stepKey] = null;
+      }
+    });
+    return allStepStates;
+  };
   /** Gets visible steps with completion status */
   getVisibleSteps = () => {
     if (!this.wizardInstance?.visibleStepsList) return [];
@@ -34,11 +46,15 @@ class Client {
   /** Gets current active step name */
   getActiveStepName = () => this.wizardInstance?.activeStep.name || null;
   /** Moves to next step */
-  onNextStep = () => this.wizardInstance?.activeStep.onNextStep();
+  onNextStep = () => {
+    this.wizardInstance?.activeStep.onNextStep();
+  };
   /** Moves to previous step */
   onPrevStep = () => this.wizardInstance?.activeStep.onPrevStep();
   /** Sets step state */
-  setState = (value: any) => this.wizardInstance?.activeStep.setState(value);
+  setState = (value: any) => {
+    this.wizardInstance?.activeStep.setState(value);
+  };
   /** Gets current step completion status */
   getIsStepComplete = () => this.wizardInstance?.activeStep.isComplete || false;
   /** Gets current step visibility */

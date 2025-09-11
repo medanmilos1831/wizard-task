@@ -104,7 +104,6 @@ export class StepInstance<TState = any> implements IStepInstance<TState> {
    */
   setState = (value: TState | ((prev: TState) => TState)) => {
     this.prevState = this.state;
-
     this.state =
       typeof value === "function"
         ? (value as (prev: TState) => TState)(this.state)

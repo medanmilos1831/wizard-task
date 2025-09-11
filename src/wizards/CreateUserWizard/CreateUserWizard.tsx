@@ -1,3 +1,4 @@
+import { Col, Row } from "antd";
 import {
   Controls,
   Navigation,
@@ -5,13 +6,19 @@ import {
   SuccessView,
   Wrapper,
 } from "./components";
-import { Col, Row } from "antd";
-import { useCreateUser } from "../../hooks/useCreateUser";
-import { WizardHander } from "./wiz";
+import { useWatchWizard } from "../../Wizard/WizzardProvider";
+
+const SuccessWrapper = ({ children }: { children: React.ReactNode }) => {
+  const isSuccess = useWatchWizard("ON_SUCCESS", (wizardInstance: any) => {
+    return wizardInstance.isSuccess;
+  });
+  useWatchWizard("ON_RESET", (wizardInstance: any) => {
+    return wizardInstance.isSuccess;
+  });
+  return <>{isSuccess ? <SuccessView /> : children}</>;
+};
 
 const CreateUserWizard = () => {
-  const createUserMutation = useCreateUser();
-
   return (
     <Wrapper>
       <Row className="mb-8">
@@ -22,50 +29,23 @@ const CreateUserWizard = () => {
           </p>
         </Col>
       </Row>
-      <WizardHander
-        onFinish={async (stepData: any, success: () => void) => {
-          try {
-            await createUserMutation.mutateAsync({
-              name: "Nicolas",
-              email: "nico@gmail.com",
-              password: "1234",
-              avatar: "https://picsum.photos/800",
-              stepData: stepData,
-            });
-            success();
-          } catch (error) {
-            // Handle error silently
-          }
-        }}
-      >
-        {(props) => {
-          if (props.isSuccess) {
-            return <SuccessView {...props} />;
-          }
-          return (
-            <Row>
-              <Col span={24} className="mb-5">
-                <Navigation />
-              </Col>
-              <Col span={24} className="mb-5">
-                <StepView name={props.activeStep.name}>
-                  <Col span={24}>
-                    <Controls
-                      isForm={
-                        props.activeStep.name === "addPlan" ||
-                        props.activeStep.name === "information"
-                      }
-                      nextButtonLabel={
-                        props.activeStep.name === "plan" ? "Next" : undefined
-                      }
-                    />
-                  </Col>
-                </StepView>
-              </Col>
-            </Row>
-          );
-        }}
-      </WizardHander>
+      <SuccessWrapper>
+        <Navigation />
+        <StepView>
+          {({ Component, activeStep }: any) => {
+            return (
+              <Component>
+                <Controls
+                  isForm={
+                    activeStep === "addPlan" || activeStep === "information"
+                  }
+                  nextButtonLabel={activeStep === "plan" ? "Next" : undefined}
+                />
+              </Component>
+            );
+          }}
+        </StepView>
+      </SuccessWrapper>
     </Wrapper>
   );
 };

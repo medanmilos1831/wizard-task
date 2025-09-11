@@ -10,12 +10,13 @@ import {
   Typography,
 } from "antd";
 import { type PropsWithChildren } from "react";
-import { client } from "../wiz";
 import styles from "./AddPlanStep.module.css";
+import { useWizardClient } from "../../../Wizard/WizzardProvider";
 
 const { Title, Text, Paragraph } = Typography;
 
 const AddPlanStep = ({ children }: PropsWithChildren) => {
+  const client = useWizardClient();
   const {
     setStepComplete,
     onNextStep,

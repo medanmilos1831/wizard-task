@@ -2,15 +2,19 @@ import { AnswerList } from "../components";
 import { Row } from "antd";
 import type { PropsWithChildren } from "react";
 import { data } from "../../../mock";
-import { client, useStepState } from "../wiz";
 import { useModal } from "../../../context/ModalProvider";
 import { WarningModal } from "../components/modals";
 import type { IStepInstance } from "../../../Wizard/types";
+import {
+  useStepState,
+  useWatchWizard,
+  useWizardClient,
+} from "../../../Wizard/WizzardProvider";
 
 /**
  * AccountTypeStep component for selecting account type
  * Handles account type selection with validation and warning modal
- * 
+ *
  * @param props - Component props
  * @param props.children - Child components to render
  * @returns JSX element representing the account type selection step
@@ -18,6 +22,7 @@ import type { IStepInstance } from "../../../Wizard/types";
 const AccountTypeStep = ({ children }: PropsWithChildren) => {
   const { state, setState } = useStepState((state: any) => state);
   // Use client methods directly
+  const client = useWizardClient();
   const setStepComplete = client.setStepComplete;
   const isComplete = client.getIsComplete();
   const getPrevStepState = client.getPrevStepState;

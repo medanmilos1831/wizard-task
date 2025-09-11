@@ -143,6 +143,7 @@ class WizardInstance {
       }
 
       if (this.isLast) {
+        // this.success();
         // Collect all step states by key
         const allStepStates: { [key: string]: any } = {};
         Object.keys(this.stepsMap).forEach((stepKey) => {
@@ -154,15 +155,7 @@ class WizardInstance {
           }
         });
 
-        try {
-          this.onFinish(allStepStates, this.success);
-        } catch (error) {
-          // Error in onFinish callback
-          this.eventManager.dispatch({
-            type: "WIZARD_ERROR",
-            payload: { error, method: "nextStep", step: "onFinish" },
-          });
-        }
+        this.onFinish(allStepStates, this.success);
         return;
       }
 
