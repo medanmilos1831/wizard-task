@@ -7,6 +7,7 @@ import {
 } from "react";
 import { createWizard } from "./createWizard";
 import { IWizardConfig } from "./types";
+import { EVENTS } from "./contants";
 
 const WizContext = createContext<any>(undefined);
 
@@ -32,9 +33,12 @@ const useOnStepChange = () => {
   const { wizardInstance } = useContext(WizContext);
   return useSyncExternalStore(
     (callback) => {
-      return wizardInstance!.eventManager.subscribe("ON_STEP_CHANGE", () => {
-        callback();
-      });
+      return wizardInstance!.eventManager.subscribe(
+        EVENTS.ON_STEP_CHANGE,
+        () => {
+          callback();
+        }
+      );
     },
     () => {
       return wizardInstance?.activeStep.name;
@@ -46,7 +50,7 @@ const useOnSuccess = () => {
   const { wizardInstance } = useContext(WizContext);
   return useSyncExternalStore(
     (callback) => {
-      return wizardInstance!.eventManager.subscribe("ON_SUCCESS", () => {
+      return wizardInstance!.eventManager.subscribe(EVENTS.ON_SUCCESS, () => {
         callback();
       });
     },
@@ -60,7 +64,7 @@ const useOnReset = () => {
   const { wizardInstance } = useContext(WizContext);
   return useSyncExternalStore(
     (callback) => {
-      return wizardInstance!.eventManager.subscribe("ON_RESET", () => {
+      return wizardInstance!.eventManager.subscribe(EVENTS.ON_RESET, () => {
         callback();
       });
     },
@@ -74,9 +78,12 @@ const useOnStepComplete = () => {
   const { wizardInstance } = useContext(WizContext);
   return useSyncExternalStore(
     (callback) => {
-      return wizardInstance!.eventManager.subscribe("ON_STEP_COMPLETE", () => {
-        callback();
-      });
+      return wizardInstance!.eventManager.subscribe(
+        EVENTS.ON_STEP_COMPLETE,
+        () => {
+          callback();
+        }
+      );
     },
     () => {
       return wizardInstance?.activeStep.isComplete;
