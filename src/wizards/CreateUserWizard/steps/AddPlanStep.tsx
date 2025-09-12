@@ -11,15 +11,15 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./AddPlanStep.module.css";
-import { useClient } from "../../../Wizard/WizProvider";
+import { useWizzard } from "../../../Wizard/Provider";
 
 const { Title, Text, Paragraph } = Typography;
 
 const AddPlanStep = ({ children }: PropsWithChildren) => {
-  const client = useClient();
+  const client = useWizzard();
   const {
     setStepComplete,
-    onNextStep,
+    nextStep,
     setState: setStateClient,
     getStepState,
   } = client;
@@ -45,7 +45,7 @@ const AddPlanStep = ({ children }: PropsWithChildren) => {
               antFormProps={{
                 onFinish: (values: any) => {
                   setStateClient(values);
-                  onNextStep();
+                  nextStep();
                 },
                 initialValues: getStepState(),
                 layout: "vertical",

@@ -15,4 +15,5 @@ export enum EVENTS {
   ON_SUCCESS = "ON_SUCCESS",
   /** Fired when the wizard is reset to initial state */
   ON_RESET = "ON_RESET",
+  ON_LAST_STEP = "ON_LAST_STEP",
 }

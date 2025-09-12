@@ -1,11 +1,7 @@
 import { useModal } from "../../../../../context/ModalProvider";
+import { useOnStepComplete, useWizzard } from "../../../../../Wizard/Provider";
 import { ResetWarning } from "../../modals";
 import styles from "./controlsButton.module.css";
-
-import {
-  useClient,
-  useOnStepComplete,
-} from "../../../../../Wizard/WizProvider";
 
 const Controls = ({
   isForm = false,
@@ -16,10 +12,10 @@ const Controls = ({
   nextButtonLabel?: string;
   isLoading?: boolean;
 }) => {
-  const client = useClient();
+  const client = useWizzard();
   // Use client methods directly
-  const onNextStep = client.onNextStep;
-  const onPrevStep = client.onPrevStep;
+  const onNextStep = client.nextStep;
+  const onPrevStep = client.prevStep;
   const getStepState = client.getStepState;
   const activeStepName = client.getActiveStepName();
   const updateVisibleSteps = client.updateVisibleSteps;
@@ -79,15 +75,16 @@ const Controls = ({
           type="button"
           onClick={() => {
             open(
-              () => (
-                <ResetWarning
-                  onConfirm={() => {
-                    reset();
-                    close();
-                  }}
-                  onCancel={() => close()}
-                />
-              ),
+              () =>
+                (
+                  <ResetWarning
+                    onConfirm={() => {
+                      reset();
+                      close();
+                    }}
+                    onCancel={() => close()}
+                  />
+                ) as any,
               {
                 centered: true,
               }

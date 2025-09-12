@@ -11,13 +11,13 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./InformationStep.module.css";
-import { useClient, useStepState } from "../../../Wizard/WizProvider";
+import { useWizzard, useStepState } from "../../../Wizard/Provider";
 
 const { Title, Text, Paragraph } = Typography;
 
 const InformationStep = ({ children }: PropsWithChildren) => {
   const { state, setState } = useStepState((state: any) => state);
-  const { setStepComplete, onNextStep, getStateByStepName } = useClient();
+  const { setStepComplete, nextStep, getStateByStepName } = useWizzard();
 
   // Determine if description is required based on selected plan or addPlan step
   const planData = getStateByStepName("plan");
@@ -56,7 +56,7 @@ const InformationStep = ({ children }: PropsWithChildren) => {
                     ...values,
                   };
                 });
-                onNextStep();
+                nextStep();
               },
               initialValues: state,
               layout: "vertical",

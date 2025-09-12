@@ -1,20 +1,8 @@
-import { Client } from "./Client";
-import type { IWizardConfig, IWizardInstance } from "./types";
-import { WizardInstance } from "./WizardInstance";
+import type { IWizardConfig } from "./types";
+import { WizzardClient } from "./WizzardClient";
 
-function createWizard(
-  config: IWizardConfig,
-  onFinish: (stepData: Record<string, any>, success: () => void) => void
-) {
-  const wizardInstance: IWizardInstance | undefined = new WizardInstance({
-    config,
-    onFinish,
-  });
-  const client = new Client(wizardInstance);
-  return {
-    wizardInstance,
-    client,
-  };
+function createWizard(config: IWizardConfig) {
+  return new WizzardClient(config);
 }
 
 export { createWizard };

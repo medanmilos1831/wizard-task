@@ -1,12 +1,13 @@
-import { useOnStepChange, useOnReset } from "../../../Wizard/WizProvider";
+import type { PropsWithChildren } from "react";
 import {
   AccountTypeStep,
   AddPlanStep,
   InformationStep,
   PlanStep,
 } from "../steps";
+import { useOnReset, useOnStepChange } from "../../../Wizard/Provider";
 
-import { PropsWithChildren } from "react";
+// import { PropsWithChildren } from "react";
 
 export const StepView = ({ children }: { children: (props: any) => any }) => {
   const stepname = useOnStepChange();

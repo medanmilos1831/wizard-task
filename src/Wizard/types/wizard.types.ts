@@ -1,4 +1,4 @@
-import { Client } from "../Client";
+import { WizzardClient } from "../WizzardClient";
 import { createWizard } from "../createWizard";
 import type { EventManager } from "../EventManager";
 import type { IStepInstance } from "./step.types";
@@ -92,7 +92,7 @@ export type WizardClient = Omit<
 >;
 
 export type WizardContext = {
-  client: Client;
+  client: WizzardClient;
 };
 
 export interface WizzardContext {
