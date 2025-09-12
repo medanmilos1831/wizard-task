@@ -31,16 +31,18 @@ const Controls = ({
   const { open, close } = useModal();
   return (
     <div className={styles.controlsContainer}>
-      <button
-        className={`${styles.controlButton} ${styles.secondary}`}
-        type="button"
-        disabled={isFirst}
-        onClick={() => {
-          onPrevStep();
-        }}
-      >
-        Previous
-      </button>
+      {!isFirst && (
+        <button
+          className={`${styles.controlButton} ${styles.secondary}`}
+          type="button"
+          disabled={isFirst}
+          onClick={() => {
+            onPrevStep();
+          }}
+        >
+          Previous
+        </button>
+      )}
       <button
         className={`${styles.controlButton} ${styles.primary}`}
         type={isForm ? "submit" : "button"}
