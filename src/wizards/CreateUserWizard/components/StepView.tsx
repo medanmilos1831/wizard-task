@@ -1,4 +1,4 @@
-import { useOnReset, useOnStepChange } from "../createUserWizzard";
+import { useOnStepChange, useOnReset } from "../../../Wizard/WizProvider";
 import {
   AccountTypeStep,
   AddPlanStep,
@@ -29,6 +29,6 @@ export const StepView = ({ children }: { children: (props: any) => any }) => {
   };
 
   return (
-    <>{children({ Component: ViewsMap[stepname], activeStep: stepname })}</>
+    <>{children({ Component: ViewsMap[stepname!], activeStep: stepname })}</>
   );
 };

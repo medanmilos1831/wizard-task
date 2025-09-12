@@ -1,9 +1,10 @@
 import { Button, Col, Row, Typography } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import { client } from "../createUserWizzard";
+import { useClient } from "../../../Wizard/WizProvider";
 
 const { Title, Paragraph } = Typography;
 export const SuccessView = () => {
+  const client = useClient();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 px-4">
       <div className="max-w-2xl w-full">

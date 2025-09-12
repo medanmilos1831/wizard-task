@@ -1,8 +1,15 @@
-import { useOnReset, useOnStepChange, client } from "../../createUserWizzard";
+import {
+  useClient,
+  useOnReset,
+  useOnStepChange,
+} from "../../../../Wizard/WizProvider";
+
 import styles from "./Navigation.module.css";
 
 export const Navigation = () => {
+  const client = useClient();
   const stepname = useOnStepChange();
+
   useOnReset();
   return (
     <div className={styles.navigation}>

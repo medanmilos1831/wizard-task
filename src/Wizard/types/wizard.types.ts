@@ -1,3 +1,5 @@
+import { Client } from "../Client";
+import { createWizard } from "../createWizard";
 import type { EventManager } from "../EventManager";
 import type { IStepInstance } from "./step.types";
 
@@ -56,7 +58,10 @@ export interface IWizardInstance {
   /** Whether current step is the first step */
   isFirst: boolean;
   /** Callback function called when wizard is completed */
-  onFinish: (stepData: { [stepName: string]: any }, success: () => void) => void;
+  onFinish: (
+    stepData: { [stepName: string]: any },
+    success: () => void
+  ) => void;
   /** Whether wizard has been completed successfully */
   isSuccess: boolean;
   /** Update visible steps configuration */
@@ -77,4 +82,20 @@ export interface IWizardInstance {
  * Client interface for wizard components
  * Excludes internal properties not needed by components
  */
-export type WizardClient = Omit<IWizardInstance, "__INIT__" | "eventManager" | "visibleStepsMap" | "allStepsList" | "currentVisibleIndex">;
+export type WizardClient = Omit<
+  IWizardInstance,
+  | "__INIT__"
+  | "eventManager"
+  | "visibleStepsMap"
+  | "allStepsList"
+  | "currentVisibleIndex"
+>;
+
+export type WizardContext = {
+  client: Client;
+};
+
+export interface WizzardContext {
+  wizardInstance: IWizardInstance;
+  client: WizardClient;
+}

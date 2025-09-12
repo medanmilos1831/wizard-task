@@ -4,7 +4,7 @@ import { type PropsWithChildren } from "react";
 import { WarningModal } from "../components/modals";
 import type { IStepInstance } from "../../../Wizard/types";
 import { useModal } from "../../../context/ModalProvider";
-import { useStepState, client } from "../createUserWizzard";
+import { useClient, useStepState } from "../../../Wizard/WizProvider";
 
 const PlanStep = ({ children }: PropsWithChildren) => {
   const { state, setState } = useStepState((state: any) => {
@@ -17,7 +17,7 @@ const PlanStep = ({ children }: PropsWithChildren) => {
     getAheadSteps,
     updateVisibleSteps,
     goToStep,
-  } = client;
+  } = useClient();
   const { open, close } = useModal();
   return (
     <>

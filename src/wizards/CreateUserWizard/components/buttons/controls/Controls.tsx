@@ -1,8 +1,11 @@
 import { useModal } from "../../../../../context/ModalProvider";
 import { ResetWarning } from "../../modals";
 import styles from "./controlsButton.module.css";
-import { client } from "../../../createUserWizzard";
-import { useOnStepComplete } from "../../../createUserWizzard";
+
+import {
+  useClient,
+  useOnStepComplete,
+} from "../../../../../Wizard/WizProvider";
 
 const Controls = ({
   isForm = false,
@@ -13,6 +16,7 @@ const Controls = ({
   nextButtonLabel?: string;
   isLoading?: boolean;
 }) => {
+  const client = useClient();
   // Use client methods directly
   const onNextStep = client.onNextStep;
   const onPrevStep = client.onPrevStep;

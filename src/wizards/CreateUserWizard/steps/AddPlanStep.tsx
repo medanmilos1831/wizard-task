@@ -11,18 +11,18 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./AddPlanStep.module.css";
-import { client } from "../createUserWizzard";
+import { useClient } from "../../../Wizard/WizProvider";
 
 const { Title, Text, Paragraph } = Typography;
 
 const AddPlanStep = ({ children }: PropsWithChildren) => {
+  const client = useClient();
   const {
     setStepComplete,
     onNextStep,
     setState: setStateClient,
     getStepState,
   } = client;
-
   return (
     <>
       <Row justify="center">
