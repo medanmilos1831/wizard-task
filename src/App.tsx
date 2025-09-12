@@ -47,7 +47,9 @@ function App() {
                       },
                     }
                   );
-                } catch (error) {}
+                } catch (error) {
+                  console.log("error", error);
+                }
               }}
             >
               <Wrapper>
@@ -103,7 +105,9 @@ function App() {
                       },
                     }
                   );
-                } catch (error) {}
+                } catch (error) {
+                  console.log("error", error);
+                }
               }}
             >
               <Wrapper>
