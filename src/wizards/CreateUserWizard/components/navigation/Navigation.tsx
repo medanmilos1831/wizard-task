@@ -2,16 +2,16 @@ import styles from "./Navigation.module.css";
 import {
   useOnReset,
   useOnStepChange,
-  useWizzard,
+  useWizardClient,
 } from "../../../../Wizard/Provider";
 
 export const Navigation = () => {
-  const client = useWizzard();
+  const wizzardClient = useWizardClient();
   const stepname = useOnStepChange();
   useOnReset();
   return (
     <div className={styles.navigation}>
-      {client.getVisibleSteps().map((step: any, index: number) => {
+      {wizzardClient.getVisibleStepsList().map((step: any, index: number) => {
         const isActive = step.stepName === stepname;
         const isCompleted = step.isComplete;
 
@@ -29,7 +29,7 @@ export const Navigation = () => {
             <button
               className={itemClasses}
               onClick={() => {
-                client.goToStep(step.stepName);
+                wizzardClient.navigateToStep(step.stepName);
               }}
               disabled={!isCompleted && !isActive}
             >

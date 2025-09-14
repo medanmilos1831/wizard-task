@@ -1,4 +1,3 @@
-import { FormWapper } from "../components";
 import {
   Card,
   Col,
@@ -10,18 +9,19 @@ import {
   Typography,
 } from "antd";
 import { type PropsWithChildren } from "react";
+import { useWizardClient } from "../../../Wizard/Provider";
+import { FormWapper } from "../components";
 import styles from "./InformationStep.module.css";
-import { useWizzard, useStepState } from "../../../Wizard/Provider";
 
 const { Title, Text, Paragraph } = Typography;
 
 const InformationStep = ({ children }: PropsWithChildren) => {
-  const { state, setState } = useStepState((state: any) => state);
-  const { setStepComplete, nextStep, getStateByStepName } = useWizzard();
+  const wizzardClient = useWizardClient();
+  const { completeStep, setState, state } = wizzardClient.getCurrentStep();
 
   // Determine if description is required based on selected plan or addPlan step
-  const planData = getStateByStepName("plan");
-  const addPlanData = getStateByStepName("addPlan");
+  const planData = wizzardClient.getStepState("plan");
+  const addPlanData = wizzardClient.getStepState("addPlan");
 
   // Check if description is required from either plan or addPlan step
   const isDescriptionRequired =
@@ -47,7 +47,7 @@ const InformationStep = ({ children }: PropsWithChildren) => {
             disabled={!!state}
             antFormProps={{
               onChange: (values: any) => {
-                setStepComplete();
+                completeStep();
               },
               onFinish: (values: any) => {
                 setState((prev: any) => {
@@ -56,7 +56,7 @@ const InformationStep = ({ children }: PropsWithChildren) => {
                     ...values,
                   };
                 });
-                nextStep();
+                wizzardClient.navigateToNextStep();
               },
               initialValues: state,
               layout: "vertical",

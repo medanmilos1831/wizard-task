@@ -1,10 +1,10 @@
 import { Button, Col, Row, Typography } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import { useWizzard } from "../../../Wizard/Provider";
+import { useWizardClient } from "../../../Wizard/Provider";
 
 const { Title, Paragraph } = Typography;
 export const SuccessView = () => {
-  const client = useWizzard();
+  const wizzardClient = useWizardClient();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 px-4">
       <div className="max-w-2xl w-full">
@@ -34,7 +34,7 @@ export const SuccessView = () => {
                 <Button
                   type="primary"
                   size="large"
-                  onClick={() => client.reset()}
+                  onClick={() => wizzardClient.resetWizard()}
                   className="success-button"
                   style={{
                     background:

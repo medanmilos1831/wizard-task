@@ -1,1 +1,1 @@
-export { CreateUserWizard } from "./CreateUserWizard";
+export { UserWizard as CreateUserWizard } from "./createUserWizzard";

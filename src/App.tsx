@@ -28,6 +28,7 @@ const wizzardTwo = createWizard({
   stepsKeys: ["accountType", "plan", "addPlan", "information"],
   visibleSteps: ["accountType", "plan"],
 });
+
 function App() {
   const createUserMutation = useCreateUser();
   return (

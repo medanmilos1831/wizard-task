@@ -1,5 +1,8 @@
 import { useModal } from "../../../../../context/ModalProvider";
-import { useOnStepComplete, useWizzard } from "../../../../../Wizard/Provider";
+import {
+  useOnStepComplete,
+  useWizardClient,
+} from "../../../../../Wizard/Provider";
 import { ResetWarning } from "../../modals";
 import styles from "./controlsButton.module.css";
 
@@ -12,17 +15,13 @@ const Controls = ({
   nextButtonLabel?: string;
   isLoading?: boolean;
 }) => {
-  const client = useWizzard();
+  const wizzardClient = useWizardClient();
+
+  const { isFirst, isLast, name, state, isComplete } =
+    wizzardClient.getCurrentStep();
+
   // Use client methods directly
-  const onNextStep = client.nextStep;
-  const onPrevStep = client.prevStep;
-  const getStepState = client.getStepState;
-  const activeStepName = client.getActiveStepName();
-  const updateVisibleSteps = client.updateVisibleSteps;
-  const isFirst = client.getIsFirst();
-  const isLast = client.getIsLast();
-  const reset = client.reset;
-  const nummberOfCompletedSteps = client.getNumberOfCompletedSteps();
+
   const isStepComplete = useOnStepComplete();
   const { open, close } = useModal();
   return (
@@ -33,7 +32,7 @@ const Controls = ({
           type="button"
           disabled={isFirst}
           onClick={() => {
-            onPrevStep();
+            wizzardClient.navigateToPreviousStep();
           }}
         >
           Previous
@@ -47,29 +46,32 @@ const Controls = ({
           isForm
             ? undefined
             : () => {
-                if (activeStepName === "plan") {
-                  const state = getStepState();
+                if (name === "plan") {
                   if (state.id === "all") {
-                    updateVisibleSteps([
+                    wizzardClient.updateVisibleSteps([
                       "accountType",
                       "plan",
                       "addPlan",
                       "information",
                     ]);
-                    onNextStep();
+                    wizzardClient.navigateToNextStep();
                   } else {
-                    updateVisibleSteps(["accountType", "plan", "information"]);
-                    onNextStep();
+                    wizzardClient.updateVisibleSteps([
+                      "accountType",
+                      "plan",
+                      "information",
+                    ]);
+                    wizzardClient.navigateToNextStep();
                   }
                 } else {
-                  onNextStep();
+                  wizzardClient.navigateToNextStep();
                 }
               }
         }
       >
         {nextButtonLabel || (isLast ? "Submit" : "Next")}
       </button>
-      {nummberOfCompletedSteps > 0 && (
+      {wizzardClient.getCompletedStepsCount() > 0 && (
         <button
           className={`${styles.controlButton} ${styles.danger}`}
           type="button"
@@ -79,7 +81,7 @@ const Controls = ({
                 (
                   <ResetWarning
                     onConfirm={() => {
-                      reset();
+                      wizzardClient.resetWizard();
                       close();
                     }}
                     onCancel={() => close()}

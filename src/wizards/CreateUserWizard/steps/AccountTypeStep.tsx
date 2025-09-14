@@ -4,8 +4,8 @@ import type { PropsWithChildren } from "react";
 import { data } from "../../../mock";
 import { useModal } from "../../../context/ModalProvider";
 import { WarningModal } from "../components/modals";
-import type { IStepInstance } from "../../../Wizard/types";
-import { useWizzard, useStepState } from "../../../Wizard/Provider";
+
+import { useStepState, useWizardClient } from "../../../Wizard/Provider";
 
 /**
  * AccountTypeStep component for selecting account type
@@ -16,14 +16,14 @@ import { useWizzard, useStepState } from "../../../Wizard/Provider";
  * @returns JSX element representing the account type selection step
  */
 const AccountTypeStep = ({ children }: PropsWithChildren) => {
-  const client = useWizzard();
+  const wizzardClient = useWizardClient();
+  const {
+    initialComplete,
+    completeStep,
+    setState: setStepState,
+  } = wizzardClient.getCurrentStep();
   const { state, setState } = useStepState((state: any) => state);
   // Use client methods directly
-  const setStepComplete = client.setStepComplete;
-  const getInitialComplete = client.getInitialComplete;
-  const updateVisibleSteps = client.updateVisibleSteps;
-  const onNextStep = client.onNextStep;
-  const getAheadSteps = client.getAheadSteps;
   const { open, close } = useModal();
   return (
     <>
@@ -33,24 +33,23 @@ const AccountTypeStep = ({ children }: PropsWithChildren) => {
           id={state?.id}
           onAnswerClick={(item) => {
             // Check if user is trying to select the same option they already selected
-            if (item.id != state?.id && getInitialComplete()) {
+            if (item.id != state?.id && initialComplete) {
               // Show warning modal for same selection
               open(
                 () => (
                   <WarningModal
                     onConfirm={() => {
                       // Get all ahead steps and reset them
-                      const aheadSteps = getAheadSteps();
-                      aheadSteps.forEach(
-                        ({ stepInstance }: { stepInstance: IStepInstance }) => {
-                          stepInstance.reset();
-                        }
-                      );
+                      const aheadSteps = wizzardClient.getUpcomingSteps();
+                      aheadSteps.forEach(({ stepInstance }) => {
+                        stepInstance.reset();
+                      });
 
                       // Update visible steps to only show accountType and plan
-                      updateVisibleSteps(["accountType", "plan"]);
+                      wizzardClient.updateVisibleSteps(["accountType", "plan"]);
+                      setStepState(item);
                       // Move to next step
-                      onNextStep();
+                      wizzardClient.navigateToNextStep();
                       // Close the modal
                       close();
                     }}
@@ -64,7 +63,7 @@ const AccountTypeStep = ({ children }: PropsWithChildren) => {
               return;
             }
             // Mark step as complete and update state with selected item
-            setStepComplete();
+            completeStep();
             setState((prev: any) => {
               return {
                 ...prev,

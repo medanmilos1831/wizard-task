@@ -7,109 +7,100 @@ import {
   type PropsWithChildren,
 } from "react";
 import { EVENTS } from "./contants";
+import { createWizard } from "./createWizard";
 
-const Context = createContext<any>(undefined);
+const Context = createContext<ReturnType<typeof createWizard> | undefined>(
+  undefined
+);
 
 const Provider = ({
   children,
   value,
   onFinish,
 }: PropsWithChildren<{
-  value: any;
-  onFinish: (stepsStateMap: any, success: () => void) => void;
+  value: ReturnType<typeof createWizard>;
+  onFinish: (
+    stepsStateMap: { [key: string]: any },
+    success: () => void
+  ) => void;
 }>) => {
   useEffect(() => {
-    value.eventManager.subscribe(EVENTS.ON_LAST_STEP, () => {
-      onFinish(value.api.getStepsStateMap(), value.success);
+    const unsubscribe = value.subscribe(EVENTS.ON_FINISH, () => {
+      onFinish(value.getAllStepsState(), value.completeWizard);
     });
-  });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
 const useOnSuccess = () => {
-  const instance = useContext(Context) as any;
+  const instance = useContext(Context)!;
   return useSyncExternalStore(
     (callback) => {
-      return instance.eventManager.subscribe(EVENTS.ON_SUCCESS, () => {
+      return instance.subscribe(EVENTS.ON_SUCCESS, () => {
         callback();
       });
     },
     () => {
-      return instance.isSuccess;
+      return instance.isWizardCompleted();
     }
   );
 };
 
-const useWizzard = () => {
-  const context = useContext(Context);
-  return context.api;
+const useWizardClient = () => {
+  const context = useContext(Context)!;
+  return context;
 };
 
 const useOnStepChange = () => {
-  const instance = useContext(Context) as any;
+  const instance = useContext(Context)!;
   return useSyncExternalStore(
     (callback) => {
-      return instance.eventManager.subscribe(
-        "CHANGED_STEP",
-        ({ detail }: any) => {
-          callback();
-        }
-      );
+      return instance.subscribe("CHANGED_STEP", ({ detail }: any) => {
+        callback();
+      });
     },
     () => {
-      return instance.activeStep.name;
+      return instance.getCurrentStep().name;
     }
   );
 };
 
 const useOnReset = () => {
-  const instance = useContext(Context) as any;
+  const instance = useContext(Context)!;
   return useSyncExternalStore(
     (callback) => {
-      return instance.eventManager.subscribe(EVENTS.ON_RESET, () => {
+      return instance.subscribe(EVENTS.ON_RESET, () => {
         callback();
       });
     },
     () => {
-      return instance.activeStep.name;
+      return instance.getCurrentStep().name;
     }
   );
 };
 
 const useOnStepComplete = () => {
-  const instance = useContext(Context) as any;
+  const instance = useContext(Context)!;
 
   return useSyncExternalStore(
     (callback) => {
-      return instance.eventManager.subscribe(EVENTS.ON_STEP_COMPLETE, () => {
+      return instance.subscribe(EVENTS.ON_STEP_COMPLETE, () => {
         callback();
       });
     },
     () => {
-      return instance.activeStep.isComplete;
+      return instance.getCurrentStep().isComplete;
     }
   );
 };
 
 const useStepState = (selector: any) => {
-  const instance = useContext(Context) as any;
+  const instance = useContext(Context)!;
   const [state, setState] = useState(() => {
-    return selector(
-      instance.activeStep.state,
-      (() => {
-        const visibleStepsStates: { [key: string]: any } = {};
-        const visibleStepsList = Object.keys(instance.visibleStepsMap);
-        visibleStepsList.forEach((stepName: string) => {
-          if (stepName !== instance.activeStep.name) {
-            const stepInstance = instance.stepsMap[stepName];
-            if (stepInstance) {
-              visibleStepsStates[stepName] = stepInstance.state;
-            }
-          }
-        });
-        return visibleStepsStates;
-      })()
-    );
+    return selector(instance.getCurrentStep().state);
   });
 
   return {
@@ -117,18 +108,15 @@ const useStepState = (selector: any) => {
     setState(callback: (state: any) => any) {
       setState((prev: any) => {
         const value = callback(prev);
-        instance.activeStep.setState(value);
+        instance.getCurrentStep().setState(value);
         return value;
       });
-    },
-    nextStep: () => {
-      instance.activeStep.onNextStep();
     },
   };
 };
 export {
   Provider,
-  useWizzard,
+  useWizardClient,
   useOnStepChange,
   useOnStepComplete,
   useOnReset,

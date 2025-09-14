@@ -2,59 +2,56 @@ import { AnswerList } from "../components";
 import { Row } from "antd";
 import { type PropsWithChildren } from "react";
 import { WarningModal } from "../components/modals";
-import type { IStepInstance } from "../../../Wizard/types";
+import type { IStepInstance } from "../../../Wizard/Entities/Step";
 import { useModal } from "../../../context/ModalProvider";
-import { useWizzard, useStepState } from "../../../Wizard/Provider";
+import { useWizardClient, useStepState } from "../../../Wizard/Provider";
 
 const PlanStep = ({ children }: PropsWithChildren) => {
   const { state, setState } = useStepState((state: any) => {
     return state;
   });
-  const {
-    getStateByStepName,
-    setStepComplete,
-    getInitialComplete,
-    getAheadSteps,
-    updateVisibleSteps,
-    goToStep,
-  } = useWizzard();
+
+  const wizzardClient = useWizardClient();
+  const { completeStep, reset, initialComplete } =
+    wizzardClient.getCurrentStep();
+
   const { open, close } = useModal();
   return (
     <>
       <Row gutter={24}>
         <AnswerList
           items={[
-            ...getStateByStepName("accountType").plan,
+            ...wizzardClient.getStepState("accountType").plan,
             { id: "all", name: "All Plans", isExtraInfoRequired: false },
           ]}
           id={state?.id}
           onAnswerClick={(item) => {
-            if (item.id != state?.id && getInitialComplete()) {
+            if (item.id != state?.id && initialComplete) {
               open(
                 () => (
                   <WarningModal
                     onConfirm={() => {
-                      const aheadSteps = getAheadSteps();
+                      const aheadSteps = wizzardClient.getUpcomingSteps();
                       aheadSteps.forEach(
                         ({ stepInstance }: { stepInstance: IStepInstance }) => {
-                          stepInstance.reset();
+                          reset();
                         }
                       );
                       if (item.id === "all") {
-                        updateVisibleSteps([
+                        wizzardClient.updateVisibleSteps([
                           "accountType",
                           "plan",
                           "addPlan",
                           "information",
                         ]);
-                        goToStep("addPlan");
+                        wizzardClient.navigateToStep("addPlan");
                       } else {
-                        updateVisibleSteps([
+                        wizzardClient.updateVisibleSteps([
                           "accountType",
                           "plan",
                           "information",
                         ]);
-                        goToStep("information");
+                        wizzardClient.navigateToStep("information");
                       }
 
                       close();
@@ -68,7 +65,7 @@ const PlanStep = ({ children }: PropsWithChildren) => {
               );
               return;
             }
-            setStepComplete();
+            completeStep();
             setState((prev) => {
               return {
                 ...prev,

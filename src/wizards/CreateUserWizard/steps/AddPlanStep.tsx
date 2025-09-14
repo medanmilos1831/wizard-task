@@ -11,18 +11,14 @@ import {
 } from "antd";
 import { type PropsWithChildren } from "react";
 import styles from "./AddPlanStep.module.css";
-import { useWizzard } from "../../../Wizard/Provider";
+import { useWizardClient } from "../../../Wizard/Provider";
 
 const { Title, Text, Paragraph } = Typography;
 
 const AddPlanStep = ({ children }: PropsWithChildren) => {
-  const client = useWizzard();
-  const {
-    setStepComplete,
-    nextStep,
-    setState: setStateClient,
-    getStepState,
-  } = client;
+  const wizzardClient = useWizardClient();
+  const { state, completeStep, setState } = wizzardClient.getCurrentStep();
+
   return (
     <>
       <Row justify="center">
@@ -41,13 +37,13 @@ const AddPlanStep = ({ children }: PropsWithChildren) => {
             <Divider className={styles.divider} />
 
             <FormWapper
-              disabled={!!getStepState()}
+              disabled={!!state}
               antFormProps={{
                 onFinish: (values: any) => {
-                  setStateClient(values);
-                  nextStep();
+                  setState(values);
+                  wizzardClient.navigateToNextStep();
                 },
-                initialValues: getStepState(),
+                initialValues: state,
                 layout: "vertical",
               }}
             >
@@ -68,7 +64,7 @@ const AddPlanStep = ({ children }: PropsWithChildren) => {
               >
                 <Input
                   onChange={(e: any) => {
-                    setStepComplete();
+                    completeStep();
                   }}
                   placeholder="Enter your plan name..."
                   size="large"

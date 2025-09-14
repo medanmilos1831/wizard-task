@@ -53,7 +53,6 @@ export const ModalProvider = ({ children }: PropsWithChildren) => {
         {...activeModalConfigRef.current}
         open={isVisible}
         className="rounded-lg"
-        maskClassName="bg-black bg-opacity-50"
         title={null}
         footer={null}
         width={480}
